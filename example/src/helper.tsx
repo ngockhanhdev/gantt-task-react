@@ -1,8 +1,27 @@
 import { Task } from "../../dist/types/public-types";
 
+export function AddNewData(taskLength:number) : any {
+  const currentDate = new Date();
+  let newTask = [];
+  for (let i = 0; i < 300; i++) {
+    newTask.push({
+      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 18),
+      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 19),
+      name: `Task ${taskLength + i + Math.random()}`,
+      id: `Task ${taskLength + i + Math.random()}`,
+      progress: 0,
+      // isDisabled: true,
+      type: "task",
+      project: "ProjectSample",
+    });
+  }
+  return newTask;
+}
+
+
 export function initTasks() {
   const currentDate = new Date();
-  const tasks: Task[] = [
+  let tasks: Task[] = [
     {
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
       end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 15),
@@ -94,6 +113,7 @@ export function initTasks() {
       type: "task",
     },
   ];
+  tasks = [...tasks,...AddNewData(tasks.length)]
   return tasks;
 }
 
@@ -113,3 +133,5 @@ export function getStartEndDateForProject(tasks: Task[], projectId: string) {
   }
   return [start, end];
 }
+
+

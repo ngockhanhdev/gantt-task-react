@@ -40,6 +40,7 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
   const [isTextInside, setIsTextInside] = useState(true);
 
   useEffect(() => {
+    console.log("task",task);
     switch (task.typeInternal) {
       case "milestone":
         setTaskItem(<Milestone {...props} />);
