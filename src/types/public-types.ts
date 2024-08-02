@@ -138,6 +138,13 @@ export interface StylingOption {
     setSelectedTask: (taskId: string) => void;
     onExpanderClick: (task: Task) => void;
   }>;
+  ItemGanttContent?: React.FC<{
+    rowHeight?: number;
+    rowWidth?: string;
+    fontFamily?: string;
+    fontSize?: string;
+    task: Task;
+  }>;
 }
 
 export interface GanttProps extends EventOption, DisplayOption, StylingOption {

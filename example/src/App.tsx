@@ -3,9 +3,12 @@ import { Task, ViewMode, Gantt } from "gantt-task-react";
 import { ViewSwitcher } from "./components/view-switcher";
 import { getStartEndDateForProject, initTasks } from "./helper";
 import "gantt-task-react/dist/index.css";
+// import AppTest from "./components/VirtualizedList";
+// import AppTest2 from "./components/VirtualizedList2";
 
 // Init
 const App = () => {
+
   const [view, setView] = React.useState<ViewMode>(ViewMode.Day);
   const [tasks, setTasks] = React.useState<Task[]>(initTasks());
   const [isChecked, setIsChecked] = React.useState(true);
@@ -67,6 +70,12 @@ const App = () => {
     console.log("On expander click Id:" + task.id);
   };
 
+  // const ItemGanttContent : React.FC = ({task,rowHeight}: any) => {
+  //   console.log('rowHeight',rowHeight);
+  //   return <>
+  //   <div>{task?.name}</div>
+  //   </>
+  // }
   return (
     <div className="Wrapper">
       <ViewSwitcher
@@ -74,20 +83,10 @@ const App = () => {
         onViewListChange={setIsChecked}
         isChecked={isChecked}
       />
-      {/*<h3>Gantt With Unlimited Height</h3>*/}
-      {/*<Gantt*/}
-      {/*  tasks={tasks}*/}
-      {/*  viewMode={view}*/}
-      {/*  onDateChange={handleTaskChange}*/}
-      {/*  onDelete={handleTaskDelete}*/}
-      {/*  onProgressChange={handleProgressChange}*/}
-      {/*  onDoubleClick={handleDblClick}*/}
-      {/*  onClick={handleClick}*/}
-      {/*  onSelect={handleSelect}*/}
-      {/*  onExpanderClick={handleExpanderClick}*/}
-      {/*  listCellWidth={isChecked ? "155px" : ""}*/}
-      {/*  columnWidth={columnWidth}*/}
-      {/*/>*/}
+      {/*<AppTest></AppTest>*/}
+      {/*<AppTest2></AppTest2>*/}
+
+
       <h3>Gantt With Limited Height</h3>
       <Gantt
         tasks={tasks}
@@ -100,8 +99,10 @@ const App = () => {
         onSelect={handleSelect}
         onExpanderClick={handleExpanderClick}
         listCellWidth={isChecked ? "155px" : ""}
-        ganttHeight={300}
+        ganttHeight={1200}
+        rowHeight={50}
         columnWidth={columnWidth}
+        // ItemGanttContent={ItemGanttContent}
       />
     </div>
   );

@@ -6,6 +6,7 @@ import { BarSmall } from "./bar/bar-small";
 import { Milestone } from "./milestone/milestone";
 import { Project } from "./project/project";
 import style from "./task-list.module.css";
+import { Task } from "../../types/public-types";
 
 export type TaskItemProps = {
   task: BarTask;
@@ -21,6 +22,13 @@ export type TaskItemProps = {
     selectedTask: BarTask,
     event?: React.MouseEvent | React.KeyboardEvent
   ) => any;
+  ItemGanttContent?: React.FC<{
+    rowHeight?: number;
+    rowWidth?: string;
+    fontFamily?: string;
+    fontSize?: string;
+    task: Task;
+  }>;
 };
 
 export const TaskItem: React.FC<TaskItemProps> = props => {
@@ -32,6 +40,7 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
     isSelected,
     rtl,
     onEventStart,
+    ItemGanttContent,
   } = {
     ...props,
   };
@@ -80,7 +89,7 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
       return task.x1 + width + arrowIndent * +hasChild + arrowIndent * 0.2;
     }
   };
-
+  // console.log("TaskItem",ItemGanttContent);
   return (
     <g
       onKeyDown={e => {
@@ -109,18 +118,33 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
       }}
     >
       {taskItem}
-      <text
-        x={getX()}
-        y={task.y + taskHeight * 0.5}
-        className={
-          isTextInside
-            ? style.barLabel
-            : style.barLabel && style.barLabelOutside
-        }
-        ref={textRef}
-      >
-        {task.name}
-      </text>
+      {
+        !!ItemGanttContent ?
+          <foreignObject x={task.x1 + 10}
+                         y={task.y + taskHeight * 0.5}
+                         height={taskHeight}
+                         width={task.x2 - task.x1 - 20}
+          >
+            {
+              <ItemGanttContent task={task} rowHeight={taskHeight}></ItemGanttContent>
+            }
+          </foreignObject>
+          :
+          <text
+            x={getX()}
+            y={task.y + taskHeight * 0.5}
+            className={
+              isTextInside
+                ? style.barLabel
+                : style.barLabel && style.barLabelOutside
+            }
+            ref={textRef}
+          >
+            {task.name}
+          </text>
+      }
+
+
     </g>
   );
 };

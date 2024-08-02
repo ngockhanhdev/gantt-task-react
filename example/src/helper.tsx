@@ -3,7 +3,7 @@ import { Task } from "../../dist/types/public-types";
 export function AddNewData(taskLength:number) : any {
   const currentDate = new Date();
   let newTask = [];
-  for (let i = 0; i < 300; i++) {
+  for (let i = 0; i < 5000; i++) {
     newTask.push({
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 18),
       end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 19),

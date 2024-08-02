@@ -1,9 +1,9 @@
 .gridRow {
-  fill: #fff;
+  fill: #f5f5f5;
 }
 
 .gridRow:nth-child(even) {
-  fill: #f5f5f5;
+  fill: #fff;
 }
 
 .gridRowLine {

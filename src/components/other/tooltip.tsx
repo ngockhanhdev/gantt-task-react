@@ -1,7 +1,8 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import { Task } from "../../types/public-types";
 import { BarTask } from "../../types/bar-task";
 import styles from "./tooltip.module.css";
+import useSetState from "../../helpers/useSetState";
 
 export type TooltipProps = {
   task: BarTask;
@@ -39,8 +40,13 @@ export const Tooltip: React.FC<TooltipProps> = ({
   TooltipContent,
 }) => {
   const tooltipRef = useRef<HTMLDivElement | null>(null);
-  const [relatedY, setRelatedY] = useState(0);
-  const [relatedX, setRelatedX] = useState(0);
+  const [state,setState] = useSetState<{
+    relatedX: number,
+    relatedY: number,
+  }>({
+    relatedX: 0,
+    relatedY: 0,
+  })
   useEffect(() => {
     if (tooltipRef.current) {
       const tooltipHeight = tooltipRef.current.offsetHeight * 1.1;
@@ -80,8 +86,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
       if (tooltipLowerPoint > svgContainerHeight - scrollY) {
         newRelatedY = svgContainerHeight - tooltipHeight;
       }
-      setRelatedY(newRelatedY);
-      setRelatedX(newRelatedX);
+      setState({
+        relatedX: newRelatedX,
+        relatedY: newRelatedY,
+      })
     }
   }, [
     tooltipRef,
@@ -101,11 +109,11 @@ export const Tooltip: React.FC<TooltipProps> = ({
     <div
       ref={tooltipRef}
       className={
-        relatedX
+        state.relatedX
           ? styles.tooltipDetailsContainer
           : styles.tooltipDetailsContainerHidden
       }
-      style={{ left: relatedX, top: relatedY }}
+      style={{ left: state.relatedX, top: state.relatedY }}
     >
       <TooltipContent task={task} fontSize={fontSize} fontFamily={fontFamily} />
     </div>

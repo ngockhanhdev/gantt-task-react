@@ -33,27 +33,30 @@ export type TaskListProps = {
     selectedTaskId: string;
     setSelectedTask: (taskId: string) => void;
     onExpanderClick: (task: Task) => void;
+    offsetY?: number
   }>;
+  offsetY: number
 };
 
 export const TaskList: React.FC<TaskListProps> = ({
-  headerHeight,
-  fontFamily,
-  fontSize,
-  rowWidth,
-  rowHeight,
-  scrollY,
-  tasks,
-  selectedTask,
-  setSelectedTask,
-  onExpanderClick,
-  locale,
-  ganttHeight,
-  taskListRef,
-  horizontalContainerClass,
-  TaskListHeader,
-  TaskListTable,
-}) => {
+                                                    headerHeight,
+                                                    fontFamily,
+                                                    fontSize,
+                                                    rowWidth,
+                                                    rowHeight,
+                                                    scrollY,
+                                                    tasks,
+                                                    selectedTask,
+                                                    setSelectedTask,
+                                                    onExpanderClick,
+                                                    locale,
+                                                    ganttHeight,
+                                                    taskListRef,
+                                                    horizontalContainerClass,
+                                                    TaskListHeader,
+                                                    TaskListTable,
+                                                    offsetY,
+                                                  }) => {
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (horizontalContainerRef.current) {
@@ -78,6 +81,7 @@ export const TaskList: React.FC<TaskListProps> = ({
     selectedTaskId: selectedTaskId,
     setSelectedTask,
     onExpanderClick,
+    offsetY
   };
 
   return (

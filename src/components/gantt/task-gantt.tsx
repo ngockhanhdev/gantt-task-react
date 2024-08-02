@@ -3,6 +3,7 @@ import { GridProps, Grid } from "../grid/grid";
 import { CalendarProps, Calendar } from "../calendar/calendar";
 import { TaskGanttContentProps, TaskGanttContent } from "./task-gantt-content";
 import styles from "./gantt.module.css";
+import { Task } from "../../types/public-types";
 
 export type TaskGanttProps = {
   gridProps: GridProps;
@@ -11,25 +12,31 @@ export type TaskGanttProps = {
   ganttHeight: number;
   scrollY: number;
   scrollX: number;
-  test?: string
+  ItemGanttContent?: React.FC<{
+    rowHeight?: number;
+    rowWidth?: string;
+    fontFamily?: string;
+    fontSize?: string;
+    task: Task;
+  }>;
 };
 export const TaskGantt: React.FC<TaskGanttProps> = ({
-  gridProps,
-  calendarProps,
-  barProps,
-  ganttHeight,
-  scrollY,
-  scrollX,
-  test
-}) => {
+                                                      gridProps,
+                                                      calendarProps,
+                                                      barProps,
+                                                      ganttHeight,
+                                                      scrollY,
+                                                      scrollX,
+                                                      ItemGanttContent,
+                                                    }) => {
   const ganttSVGRef = useRef<SVGSVGElement>(null);
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
   const verticalGanttContainerRef = useRef<HTMLDivElement>(null);
   const newBarProps = { ...barProps, svg: ganttSVGRef };
 
   useEffect(() => {
-    console.log('scrollY',scrollY);
     if (horizontalContainerRef.current) {
+      console.log("scrollY", scrollY);
       horizontalContainerRef.current.scrollTop = scrollY;
     }
   }, [scrollY]);
@@ -39,10 +46,6 @@ export const TaskGantt: React.FC<TaskGanttProps> = ({
       verticalGanttContainerRef.current.scrollLeft = scrollX;
     }
   }, [scrollX]);
-
-  useEffect(() => {
-    console.log('test',test);
-  }, [test]);
 
   return (
     <div
@@ -67,16 +70,31 @@ export const TaskGantt: React.FC<TaskGanttProps> = ({
             : { width: gridProps.svgWidth }
         }
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width={gridProps.svgWidth}
-          height={barProps.rowHeight * barProps.tasks.length}
-          fontFamily={barProps.fontFamily}
-          ref={ganttSVGRef}
-        >
-          <Grid {...gridProps} />
-          <TaskGanttContent {...newBarProps} />
-        </svg>
+        <div style={{
+          height: gridProps?.ganttFullHeight,
+        }}>
+          <div
+            style={{
+              marginTop: barProps?.offsetY || 0,
+            }}
+          >
+          </div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={gridProps.svgWidth}
+            height={ganttHeight}
+            // height={barProps.rowHeight * barProps.tasks.length}
+            fontFamily={barProps.fontFamily}
+            ref={ganttSVGRef}
+          >
+            <Grid {...gridProps} />
+            <TaskGanttContent
+              {...newBarProps}
+              ItemGanttContent={ItemGanttContent}
+            />
+          </svg>
+        </div>
+
       </div>
     </div>
   );

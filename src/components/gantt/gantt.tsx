@@ -25,7 +25,6 @@ import { removeHiddenTasks, sortTasks } from "../../helpers/other-helper";
 import styles from "./gantt.module.css";
 import useSetState from "../../helpers/useSetState";
 
-
 export const Gantt: React.FC<GanttProps> = ({
                                               tasks,
                                               headerHeight = 50,
@@ -60,6 +59,7 @@ export const Gantt: React.FC<GanttProps> = ({
                                               TooltipContent = StandardTooltipContent,
                                               TaskListHeader = TaskListHeaderDefault,
                                               TaskListTable = TaskListTableDefault,
+                                              ItemGanttContent,
                                               onDateChange,
                                               onProgressChange,
                                               onDoubleClick,
@@ -70,7 +70,7 @@ export const Gantt: React.FC<GanttProps> = ({
                                             }) => {
   console.log("gannnnt");
 
-  const [state,setState] = useSetState<
+  const [state, setState] = useSetState<
     {
       currentViewDate: Date | undefined,
       taskListWidth: number,
@@ -79,9 +79,12 @@ export const Gantt: React.FC<GanttProps> = ({
       barTasks: BarTask[],
       ganttEvent: GanttEvent,
       selectedTask: BarTask | undefined,
-      failedTask: BarTask | null,
       scrollY: number,
       scrollX: number,
+
+      // scroll virtualized
+      visibleItems: BarTask[],
+      offsetY: number,
     }
   >({
     currentViewDate: undefined,
@@ -92,12 +95,14 @@ export const Gantt: React.FC<GanttProps> = ({
     ganttEvent: {
       action: "",
     },
-    selectedTask : undefined,
-    failedTask : null,
-    scrollY : 0,
-    scrollX : -1,
+    selectedTask: undefined,
+    scrollY: 0,
+    scrollX: -1,
 
-  })
+    // scroll virtualized
+    visibleItems: [],
+    offsetY: 0,
+  });
   const wrapperRef = useRef<HTMLDivElement>(null);
   const taskListRef = useRef<HTMLDivElement>(null);
   const [dateSetup, setDateSetup] = useState<DateSetup>(() => {
@@ -113,15 +118,15 @@ export const Gantt: React.FC<GanttProps> = ({
   const svgWidth = dateSetup.dates.length * columnWidth;
   const ganttFullHeight = state.barTasks.length * rowHeight;
 
-  const ignoreScrollEvent = useRef<boolean>(false)
+  const ignoreScrollEvent = useRef<boolean>(false);
   // task change events
-  useEffect(() => {
-    console.log("gantt useEffect 1");
+
+  const changeTaskData = (listTask: Task[]): any => {
     let filteredTasks: Task[];
     if (onExpanderClick) {
-      filteredTasks = removeHiddenTasks(tasks);
+      filteredTasks = removeHiddenTasks(listTask);
     } else {
-      filteredTasks = tasks;
+      filteredTasks = listTask;
     }
     filteredTasks = filteredTasks.sort(sortTasks);
     const [startDate, endDate] = ganttDateRange(
@@ -133,12 +138,12 @@ export const Gantt: React.FC<GanttProps> = ({
     if (rtl) {
       newDates = newDates.reverse();
       if (state.scrollX === -1) {
-        setState({scrollX : newDates.length * columnWidth})
+        setState({ scrollX: newDates.length * columnWidth });
       }
     }
-    setDateSetup({ dates: newDates, viewMode });
-    setState({
-      barTasks: convertToBarTasks(
+    return {
+      dataSetup: { dates: newDates, viewMode },
+      tasksData: convertToBarTasks(
         filteredTasks,
         newDates,
         columnWidth,
@@ -158,7 +163,15 @@ export const Gantt: React.FC<GanttProps> = ({
         milestoneBackgroundColor,
         milestoneBackgroundSelectedColor,
       ),
-    })
+    };
+  };
+
+  useEffect(() => {
+    let { dataSetup, tasksData } = changeTaskData(tasks);
+    setDateSetup(dataSetup);
+    setState({
+      barTasks: tasksData,
+    });
   }, [
     tasks,
     viewMode,
@@ -184,7 +197,6 @@ export const Gantt: React.FC<GanttProps> = ({
   ]);
 
   useEffect(() => {
-    console.log("gantt useEffect 2");
     if (
       viewMode === dateSetup.viewMode &&
       ((viewDate && !state.currentViewDate) ||
@@ -201,9 +213,9 @@ export const Gantt: React.FC<GanttProps> = ({
         return;
       }
       setState({
-        currentViewDate : viewDate,
-        scrollX: columnWidth * index
-      })
+        currentViewDate: viewDate,
+        scrollX: columnWidth * index,
+      });
     }
   }, [
     viewDate,
@@ -211,87 +223,77 @@ export const Gantt: React.FC<GanttProps> = ({
     dateSetup.dates,
     dateSetup.viewMode,
     viewMode,
-    state.currentViewDate,
+    // state.currentViewDate,
     // setCurrentViewDate,
   ]);
 
-  useEffect(() => {
-    console.log("gantt useEffect 3", state.ganttEvent);
-    const { changedTask, action } = state.ganttEvent;
-    if (changedTask) {
-      if (action === "delete") {
-        setState({
-          ganttEvent : { action: "" },
-          barTasks: state.barTasks.filter(t => t.id !== changedTask.id)
-        })
-      } else if (
-        action === "move" ||
-        action === "end" ||
-        action === "start" ||
-        action === "progress"
-      ) {
-        const prevStateTask = state.barTasks.find(t => t.id === changedTask.id);
-        if (
-          prevStateTask &&
-          (prevStateTask.start.getTime() !== changedTask.start.getTime() ||
-            prevStateTask.end.getTime() !== changedTask.end.getTime() ||
-            prevStateTask.progress !== changedTask.progress)
-        ) {
-          // actions for change
-          const newTaskList = state.barTasks.map(t =>
-            t.id === changedTask.id ? changedTask : t,
-          );
-          setState({
-            barTasks: newTaskList,
-          })
-        }
-      }
-    }
-  }, [state.ganttEvent, state.barTasks]);
+  // useEffect(() => {
+  //   console.log("gantt useEffect 3", state.ganttEvent);
+  //   const { changedTask, action } = state.ganttEvent;
+  //   if (changedTask) {
+  //     if (action === "delete") {
+  //       setState({
+  //         ganttEvent : { action: "" },
+  //         barTasks: state.barTasks.filter(t => t.id !== changedTask.id)
+  //       })
+  //     } else if (
+  //       action === "move" ||
+  //       action === "end" ||
+  //       action === "start" ||
+  //       action === "progress"
+  //     ) {
+  //       const prevStateTask = state.barTasks.find(t => t.id === changedTask.id);
+  //       if (
+  //         prevStateTask &&
+  //         (prevStateTask.start.getTime() !== changedTask.start.getTime() ||
+  //           prevStateTask.end.getTime() !== changedTask.end.getTime() ||
+  //           prevStateTask.progress !== changedTask.progress)
+  //       ) {
+  //         // actions for change
+  //         const newTaskList = state.barTasks.map(t =>
+  //           t.id === changedTask.id ? changedTask : t,
+  //         );
+  //         setState({
+  //           barTasks: newTaskList,
+  //         })
+  //       }
+  //     }
+  //   }
+  // }, [state.ganttEvent, state.barTasks]);
+
 
   useEffect(() => {
-    console.log("gantt useEffect 4", state.failedTask);
-    if (state.failedTask) {
-      setState({
-        barTasks: state.barTasks.map(t => (t.id !== state?.failedTask?.id ? t : state.failedTask)),
-        failedTask: null
-      })
-    }
-  }, [state.failedTask, state.barTasks]);
-
-  useEffect(() => {
-    console.log("gantt useEffect 5");
     if (!listCellWidth) {
       setState({
-        taskListWidth : 0
-      })
+        taskListWidth: 0,
+      });
+      return;
     }
     if (taskListRef.current) {
       setState({
-        taskListWidth : taskListRef.current.offsetWidth
-      })
+        taskListWidth: taskListRef.current.offsetWidth,
+      });
+      return;
     }
   }, [taskListRef, listCellWidth]);
 
   useEffect(() => {
-    console.log("gantt useEffect 6");
     if (wrapperRef.current) {
       setState({
-        svgContainerWidth: wrapperRef.current.offsetWidth - state.taskListWidth
-      })
+        svgContainerWidth: wrapperRef.current.offsetWidth - state.taskListWidth,
+      });
     }
   }, [wrapperRef, state.taskListWidth]);
 
   useEffect(() => {
-    console.log("gantt useEffect 7");
     if (ganttHeight) {
       setState({
-        svgContainerHeight: ganttHeight + headerHeight
-      })
+        svgContainerHeight: ganttHeight + headerHeight,
+      });
     } else {
       setState({
-        svgContainerHeight : tasks.length * rowHeight + headerHeight
-      })
+        svgContainerHeight: tasks.length * rowHeight + headerHeight,
+      });
     }
   }, [ganttHeight, tasks, headerHeight, rowHeight]);
 
@@ -373,6 +375,31 @@ export const Gantt: React.FC<GanttProps> = ({
   //
   // }, []);
 
+
+  const handleScroll = () => {
+
+    const newStartIndex = Math.max(
+      0,
+      Math.floor(state.scrollY / rowHeight),
+    );
+    const newEndIndex = Math.min(
+      tasks.length - 1,
+      Math.floor((state.scrollY + ganttHeight) / rowHeight),
+    );
+    let newItems = tasks.slice(newStartIndex, newEndIndex + 1);
+    let newOffsetY = newStartIndex * rowHeight;
+    let {dataSetup, tasksData } = changeTaskData(newItems);
+    setDateSetup(dataSetup);
+
+    setState({
+      visibleItems: tasksData,
+      offsetY: newOffsetY,
+    });
+  };
+
+  useEffect(() => {
+    handleScroll();
+  }, [state.barTasks, state.scrollY]);
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
       // if (event.shiftKey || event.deltaX) {
@@ -386,7 +413,7 @@ export const Gantt: React.FC<GanttProps> = ({
       //   setScrollX(newScrollX);
       //   event.preventDefault();
       // } else
-        if (ganttHeight) {
+      if (ganttHeight) {
         let newScrollY = state.scrollY + event.deltaY;
         if (newScrollY < 0) {
           newScrollY = 0;
@@ -395,15 +422,14 @@ export const Gantt: React.FC<GanttProps> = ({
         }
         if (newScrollY !== state.scrollY) {
           setState({
-            scrollY: newScrollY
-          })
+            scrollY: newScrollY,
+          });
           event.preventDefault();
         }
       }
 
       ignoreScrollEvent.current = true;
     };
-
     // subscribe if scroll is necessary
     wrapperRef.current?.addEventListener("wheel", handleWheel, {
       passive: false,
@@ -423,15 +449,11 @@ export const Gantt: React.FC<GanttProps> = ({
 
   //
 
-  const testValue = useRef('')
   const handleScrollY = (event: SyntheticEvent<HTMLDivElement>) => {
-    console.log("handleScrollY",event);
-    console.log("setIgnoreScrollEvent",ignoreScrollEvent.current);
-    testValue.current = `${event.currentTarget.scrollTop}`
     if (state.scrollY !== event.currentTarget.scrollTop && !ignoreScrollEvent.current) {
       setState({
-        scrollY : event.currentTarget.scrollTop
-      })
+        scrollY: event.currentTarget.scrollTop,
+      });
       ignoreScrollEvent.current = true;
     } else {
       ignoreScrollEvent.current = false;
@@ -453,7 +475,6 @@ export const Gantt: React.FC<GanttProps> = ({
    * Handles arrow keys events and transform it to new scroll
    */
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    console.log("handleKeyDown gantt");
     event.preventDefault();
     let newScrollY = state.scrollY;
     let newScrollX = state.scrollX;
@@ -486,7 +507,7 @@ export const Gantt: React.FC<GanttProps> = ({
       }
       setState({
         scrollX: newScrollX,
-      })
+      });
     } else {
       if (newScrollY < 0) {
         newScrollY = 0;
@@ -495,9 +516,9 @@ export const Gantt: React.FC<GanttProps> = ({
       }
       setState({
         scrollY: newScrollY,
-      })
+      });
     }
-    ignoreScrollEvent.current = true
+    ignoreScrollEvent.current = true;
   };
 
   /**
@@ -518,21 +539,73 @@ export const Gantt: React.FC<GanttProps> = ({
     }
     setState({
       selectedTask: newSelectedTask,
-    })
+    });
   };
   const handleExpanderClick = (task: Task) => {
     if (onExpanderClick && task.hideChildren !== undefined) {
       onExpanderClick({ ...task, hideChildren: !task.hideChildren });
     }
   };
+
+  const setGanttEvent = (eventGantt: any) => {
+    const { changedTask, action } = eventGantt;
+    console.log("eventGantt", eventGantt);
+    setState({
+      ganttEvent: eventGantt,
+    });
+    if (changedTask) {
+      if (action === "delete") {
+        setState({
+          ganttEvent: { action: "" },
+          barTasks: state.barTasks.filter(t => t.id !== changedTask.id),
+        });
+      } else if (
+        action === "move" ||
+        action === "end" ||
+        action === "start" ||
+        action === "progress"
+      ) {
+        const prevStateTask = state.barTasks.find(t => t.id === changedTask.id);
+        if (
+          prevStateTask &&
+          (prevStateTask.start.getTime() !== changedTask.start.getTime() ||
+            prevStateTask.end.getTime() !== changedTask.end.getTime() ||
+            prevStateTask.progress !== changedTask.progress)
+        ) {
+          // actions for change
+          const newTaskList = state.barTasks.map(t =>
+            t.id === changedTask.id ? changedTask : t,
+          );
+          setState({
+            barTasks: newTaskList,
+            // ganttEvent : eventGantt
+          });
+        }
+      }
+    }
+
+  };
+
+  const setFailedTask = (value: any) => {
+    if (value) {
+      setState({
+        barTasks: state.barTasks.map(t => (t.id !== value?.id ? t : value)),
+      });
+    }
+  };
+
+
   const gridProps: GridProps = {
     columnWidth,
     svgWidth,
-    tasks: tasks,
+    // tasks: tasks,
+    tasks: state.visibleItems || [],
     rowHeight,
+    ganttFullHeight,
     dates: dateSetup.dates,
     todayColor,
     rtl,
+    offsetY: state.offsetY,
   };
   const calendarProps: CalendarProps = {
     dateSetup,
@@ -545,11 +618,13 @@ export const Gantt: React.FC<GanttProps> = ({
     rtl,
   };
   const barProps: TaskGanttContentProps = {
-    tasks: state.barTasks,
+    tasks: state.visibleItems || [],
+    // tasks: state.barTasks,
     dates: dateSetup.dates,
-    ganttEvent : state.ganttEvent,
-    selectedTask : state.selectedTask,
+    ganttEvent: state.ganttEvent,
+    selectedTask: state.selectedTask,
     rowHeight,
+    // ganttFullHeight,
     taskHeight,
     columnWidth,
     arrowColor,
@@ -559,22 +634,16 @@ export const Gantt: React.FC<GanttProps> = ({
     arrowIndent,
     svgWidth,
     rtl,
-    setGanttEvent : (value: any) => {
-      setState({
-        ganttEvent : value
-      })
-    },
-    setFailedTask : (value: any) => {
-      setState({
-        failedTask: value
-      })
-    },
+    setGanttEvent,
+    setFailedTask,
     setSelectedTask: handleSelectedTask,
     onDateChange,
     onProgressChange,
     onDoubleClick,
     onClick,
     onDelete,
+    offsetY: state.offsetY,
+
   };
 
   const tableProps: TaskListProps = {
@@ -582,19 +651,26 @@ export const Gantt: React.FC<GanttProps> = ({
     rowWidth: listCellWidth,
     fontFamily,
     fontSize,
-    tasks: state.barTasks,
+    tasks: state.visibleItems || [],
+    // tasks: state.barTasks,
     locale,
     headerHeight,
-    scrollY : state.scrollY,
+    scrollY: state.scrollY,
     ganttHeight,
     horizontalContainerClass: styles.horizontalContainer,
-    selectedTask : state.selectedTask,
+    selectedTask: state.selectedTask,
     taskListRef,
     setSelectedTask: handleSelectedTask,
     onExpanderClick: handleExpanderClick,
     TaskListHeader,
     TaskListTable,
+    offsetY: state.offsetY,
   };
+
+  // @ts-ignore
+  const ItemRenderGanttContent: React.JSXElementConstructor<any> = React.memo((propsGantt: any) => {
+    return !!ItemGanttContent && propsGantt ? <ItemGanttContent {...propsGantt}></ItemGanttContent> : undefined;
+  });
   return (
     <div>
       <div
@@ -611,7 +687,7 @@ export const Gantt: React.FC<GanttProps> = ({
           ganttHeight={ganttHeight}
           scrollY={state.scrollY}
           scrollX={state.scrollX}
-          test={testValue.current}
+          ItemGanttContent={!!ItemGanttContent ? ItemRenderGanttContent : undefined}
         />
         {state.ganttEvent.changedTask && (
           <Tooltip

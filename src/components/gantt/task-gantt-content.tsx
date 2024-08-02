@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { EventOption } from "../../types/public-types";
+import { EventOption, Task } from "../../types/public-types";
 import { BarTask } from "../../types/bar-task";
 import { Arrow } from "../other/arrow";
 import { handleTaskBySVGMouseEvent } from "../../helpers/bar-helper";
@@ -17,6 +17,7 @@ export type TaskGanttContentProps = {
   ganttEvent: GanttEvent;
   selectedTask: BarTask | undefined;
   rowHeight: number;
+  // ganttFullHeight: number;
   columnWidth: number;
   timeStep: number;
   svg?: React.RefObject<SVGSVGElement>;
@@ -30,6 +31,14 @@ export type TaskGanttContentProps = {
   setGanttEvent: (value: GanttEvent) => void;
   setFailedTask: (value: BarTask | null) => void;
   setSelectedTask: (taskId: string) => void;
+  ItemGanttContent?: React.FC<{
+    rowHeight?: number;
+    rowWidth?: string;
+    fontFamily?: string;
+    fontSize?: string;
+    task: Task;
+  }>;
+  offsetY?: number;
 } & EventOption;
 
 const ItemRenderTask = React.memo(
@@ -44,12 +53,12 @@ const ItemRenderTask = React.memo(
      onEventStart,
      isSelected,
      rtl,
-     key,
-
+     ItemGanttContent,
    }: any) => {
     // const getData = (e:any) => {
     //     console.log("getData",e)
     // }
+    // console.log("TaskItem");
     return (
       <TaskItem
         task={task}
@@ -61,7 +70,7 @@ const ItemRenderTask = React.memo(
         onEventStart={onEventStart}
         isSelected={isSelected}
         rtl={rtl}
-        key={key}
+        ItemGanttContent={ItemGanttContent}
       />
     );
   },
@@ -74,6 +83,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
                                                                     ganttEvent,
                                                                     selectedTask,
                                                                     rowHeight,
+                                                                    // ganttFullHeight,
                                                                     columnWidth,
                                                                     timeStep,
                                                                     svg,
@@ -91,6 +101,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
                                                                     onDoubleClick,
                                                                     onClick,
                                                                     onDelete,
+                                                                    ItemGanttContent,
                                                                   }) => {
   const point = svg?.current?.createSVGPoint();
   const [xStep, setXStep] = useState(0);
@@ -301,6 +312,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
     <g className="content">
       <g className="arrows" fill={arrowColor} stroke={arrowColor}>
         {tasks.map(task => {
+          console.log("task.barChildren",task);
           return task.barChildren.map(child => {
             return (
               <Arrow
@@ -331,6 +343,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
               onEventStart={handleBarEventStart}
               isSelected={!!selectedTask && task.id === selectedTask.id}
               rtl={rtl}
+              ItemGanttContent={ItemGanttContent}
             />
             // </>
 

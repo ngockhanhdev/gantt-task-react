@@ -8,19 +8,22 @@ export type GridBodyProps = {
   dates: Date[];
   svgWidth: number;
   rowHeight: number;
+  ganttFullHeight: number;
   columnWidth: number;
   todayColor: string;
   rtl: boolean;
+  offsetY?: number;
 };
 export const GridBody: React.FC<GridBodyProps> = ({
-  tasks,
-  dates,
-  rowHeight,
-  svgWidth,
-  columnWidth,
-  todayColor,
-  rtl,
-}) => {
+                                                    tasks,
+                                                    dates,
+                                                    rowHeight,
+                                                    svgWidth,
+                                                    columnWidth,
+                                                    todayColor,
+                                                    rtl,
+                                                    // offsetY,
+                                                  }) => {
   let y = 0;
   const gridRows: ReactChild[] = [];
   const rowLines: ReactChild[] = [
@@ -42,7 +45,7 @@ export const GridBody: React.FC<GridBodyProps> = ({
         width={svgWidth}
         height={rowHeight}
         className={styles.gridRow}
-      />
+      />,
     );
     rowLines.push(
       <line
@@ -52,7 +55,7 @@ export const GridBody: React.FC<GridBodyProps> = ({
         x2={svgWidth}
         y2={y + rowHeight}
         className={styles.gridRowLine}
-      />
+      />,
     );
     y += rowHeight;
   }
@@ -71,7 +74,7 @@ export const GridBody: React.FC<GridBodyProps> = ({
         x2={tickX}
         y2={y}
         className={styles.gridTick}
-      />
+      />,
     );
     if (
       (i + 1 !== dates.length &&
@@ -84,7 +87,7 @@ export const GridBody: React.FC<GridBodyProps> = ({
         addToDate(
           date,
           date.getTime() - dates[i - 1].getTime(),
-          "millisecond"
+          "millisecond",
         ).getTime() >= now.getTime())
     ) {
       today = (

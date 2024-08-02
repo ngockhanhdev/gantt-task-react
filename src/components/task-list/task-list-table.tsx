@@ -5,15 +5,15 @@ import { Task } from "../../types/public-types";
 const localeDateStringCache = {};
 const toLocaleDateStringFactory =
   (locale: string) =>
-  (date: Date, dateTimeOptions: Intl.DateTimeFormatOptions) => {
-    const key = date.toString();
-    let lds = localeDateStringCache[key];
-    if (!lds) {
-      lds = date.toLocaleDateString(locale, dateTimeOptions);
-      localeDateStringCache[key] = lds;
-    }
-    return lds;
-  };
+    (date: Date, dateTimeOptions: Intl.DateTimeFormatOptions) => {
+      const key = date.toString();
+      let lds = localeDateStringCache[key];
+      if (!lds) {
+        lds = date.toLocaleDateString(locale, dateTimeOptions);
+        localeDateStringCache[key] = lds;
+      }
+      return lds;
+    };
 const dateTimeOptions: Intl.DateTimeFormatOptions = {
   weekday: "short",
   year: "numeric",
@@ -31,18 +31,20 @@ export const TaskListTableDefault: React.FC<{
   selectedTaskId: string;
   setSelectedTask: (taskId: string) => void;
   onExpanderClick: (task: Task) => void;
+  offsetY?: number;
 }> = ({
-  rowHeight,
-  rowWidth,
-  tasks,
-  fontFamily,
-  fontSize,
-  locale,
-  onExpanderClick,
-}) => {
+        rowHeight,
+        rowWidth,
+        tasks,
+        fontFamily,
+        fontSize,
+        locale,
+        onExpanderClick,
+        offsetY,
+      }) => {
   const toLocaleDateString = useMemo(
     () => toLocaleDateStringFactory(locale),
-    [locale]
+    [locale],
   );
 
   return (
@@ -53,6 +55,7 @@ export const TaskListTableDefault: React.FC<{
         fontSize: fontSize,
       }}
     >
+      <div style={{ marginTop: offsetY || 0 }}></div>
       {tasks.map(t => {
         let expanderSymbol = "";
         if (t.hideChildren === false) {
