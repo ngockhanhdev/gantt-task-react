@@ -227,40 +227,6 @@ export const Gantt: React.FC<GanttProps> = ({
     // setCurrentViewDate,
   ]);
 
-  // useEffect(() => {
-  //   console.log("gantt useEffect 3", state.ganttEvent);
-  //   const { changedTask, action } = state.ganttEvent;
-  //   if (changedTask) {
-  //     if (action === "delete") {
-  //       setState({
-  //         ganttEvent : { action: "" },
-  //         barTasks: state.barTasks.filter(t => t.id !== changedTask.id)
-  //       })
-  //     } else if (
-  //       action === "move" ||
-  //       action === "end" ||
-  //       action === "start" ||
-  //       action === "progress"
-  //     ) {
-  //       const prevStateTask = state.barTasks.find(t => t.id === changedTask.id);
-  //       if (
-  //         prevStateTask &&
-  //         (prevStateTask.start.getTime() !== changedTask.start.getTime() ||
-  //           prevStateTask.end.getTime() !== changedTask.end.getTime() ||
-  //           prevStateTask.progress !== changedTask.progress)
-  //       ) {
-  //         // actions for change
-  //         const newTaskList = state.barTasks.map(t =>
-  //           t.id === changedTask.id ? changedTask : t,
-  //         );
-  //         setState({
-  //           barTasks: newTaskList,
-  //         })
-  //       }
-  //     }
-  //   }
-  // }, [state.ganttEvent, state.barTasks]);
-
 
   useEffect(() => {
     if (!listCellWidth) {
@@ -399,7 +365,7 @@ export const Gantt: React.FC<GanttProps> = ({
 
   useEffect(() => {
     handleScroll();
-  }, [state.barTasks, state.scrollY]);
+  }, [tasks, state.scrollY]);
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
       console.log("handleWheel");
@@ -527,8 +493,8 @@ export const Gantt: React.FC<GanttProps> = ({
    * Task select event
    */
   const handleSelectedTask = (taskId: string) => {
-    const newSelectedTask = state.barTasks.find(t => t.id === taskId);
-    const oldSelectedTask = state.barTasks.find(
+    const newSelectedTask = state.visibleItems.find(t => t.id === taskId);
+    const oldSelectedTask = state.visibleItems.find(
       t => !!state.selectedTask && t.id === state.selectedTask.id,
     );
     if (onSelect) {
@@ -551,7 +517,7 @@ export const Gantt: React.FC<GanttProps> = ({
 
   const setGanttEvent = (eventGantt: any) => {
     const { changedTask, action } = eventGantt;
-    console.log("eventGantt", eventGantt);
+    // console.log("eventGantt", eventGantt);
     setState({
       ganttEvent: eventGantt,
     });
@@ -559,7 +525,7 @@ export const Gantt: React.FC<GanttProps> = ({
       if (action === "delete") {
         setState({
           ganttEvent: { action: "" },
-          barTasks: state.barTasks.filter(t => t.id !== changedTask.id),
+          visibleItems: state.visibleItems.filter(t => t.id !== changedTask.id),
         });
       } else if (
         action === "move" ||
@@ -567,7 +533,7 @@ export const Gantt: React.FC<GanttProps> = ({
         action === "start" ||
         action === "progress"
       ) {
-        const prevStateTask = state.barTasks.find(t => t.id === changedTask.id);
+        const prevStateTask = state.visibleItems.find(t => t.id === changedTask.id);
         if (
           prevStateTask &&
           (prevStateTask.start.getTime() !== changedTask.start.getTime() ||
@@ -575,23 +541,21 @@ export const Gantt: React.FC<GanttProps> = ({
             prevStateTask.progress !== changedTask.progress)
         ) {
           // actions for change
-          const newTaskList = state.barTasks.map(t =>
+          const newTaskVisibleList = state.visibleItems.map(t =>
             t.id === changedTask.id ? changedTask : t,
           );
           setState({
-            barTasks: newTaskList,
-            // ganttEvent : eventGantt
+            visibleItems: newTaskVisibleList
           });
         }
       }
     }
-
   };
 
   const setFailedTask = (value: any) => {
     if (value) {
       setState({
-        barTasks: state.barTasks.map(t => (t.id !== value?.id ? t : value)),
+        visibleItems: state.visibleItems.map(t => (t.id !== value?.id ? t : value)),
       });
     }
   };

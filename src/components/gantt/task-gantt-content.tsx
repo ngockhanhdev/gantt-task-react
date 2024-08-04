@@ -312,7 +312,6 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
     <g className="content">
       <g className="arrows" fill={arrowColor} stroke={arrowColor}>
         {tasks.map(task => {
-          console.log("task.barChildren",task);
           return task.barChildren.map(child => {
             return (
               <Arrow

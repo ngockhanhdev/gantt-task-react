@@ -18,7 +18,6 @@ export function AddNewData(taskLength:number) : any {
   return newTask;
 }
 
-
 export function initTasks() {
   const currentDate = new Date();
   let tasks: Task[] = [
