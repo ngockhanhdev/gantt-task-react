@@ -264,85 +264,9 @@ export const Gantt: React.FC<GanttProps> = ({
   }, [ganttHeight, tasks, headerHeight, rowHeight]);
 
   // scroll events TODO
-  // useEffect(() => {
-  //   console.log('gantt useEffect 8');
-  // if (rtl) {
-  //   let filteredTasks: Task[];
-  //   if (onExpanderClick) {
-  //     filteredTasks = removeHiddenTasks(tasks);
-  //   } else {
-  //     filteredTasks = tasks;
-  //   }
-  //   filteredTasks = filteredTasks.sort(sortTasks);
-  //   const [startDate, endDate] = ganttDateRange(
-  //     filteredTasks,
-  //     viewMode,
-  //     preStepsCount
-  //   );
-  //   let newDates = seedDates(startDate, endDate, viewMode);
-  //   newDates = newDates.reverse();
-  //   if (scrollX === -1) {
-  //     setScrollX(newDates.length * columnWidth);
-  //   }
-  // }
-  // }, [
-  // wrapperRef,
-  // scrollY,
-  // scrollX,
-  // ganttHeight,
-  // svgWidth,
-  // rtl,
-  // ganttFullHeight,
-  // ]);
-  // useEffect(() => {
-  //   const handleWheel = (event: WheelEvent) => {
-  //     console.log("handleWheel",event);
-  //     console.log("scrollX",scrollX);
-  //     console.log("scrollY",scrollY);
-  //     console.log("ganttHeight",ganttHeight);
-  //     console.log("ganttFullHeight",ganttFullHeight);
-  //     // if (event.shiftKey || event.deltaX) {
-  //     //   const scrollMove = event.deltaX ? event.deltaX : event.deltaY;
-  //     //   let newScrollX = scrollX + scrollMove;
-  //     //   if (newScrollX < 0) {
-  //     //     newScrollX = 0;
-  //     //   } else if (newScrollX > svgWidth) {
-  //     //     newScrollX = svgWidth;
-  //     //   }
-  //     //   console.log("newScrollX",newScrollX);
-  //     //   setScrollX(newScrollX);
-  //     //   event.preventDefault();
-  //     // } else
-  //       if (ganttHeight) {
-  //       let newScrollY = scrollY + event.deltaY;
-  //         console.log("newScrollY",newScrollY);
-  //         console.log("ganttFullHeight 2",ganttFullHeight -  ganttHeight);
-  //       if (newScrollY < 0) {
-  //         newScrollY = 0;
-  //       } else if (newScrollY > ganttFullHeight - ganttHeight) {
-  //         newScrollY = ganttFullHeight - ganttHeight;
-  //       }
-  //       console.log("newScrollY",newScrollY);
-  //       if (newScrollY !== scrollY) {
-  //         // setScrollY(newScrollY);
-  //         event.preventDefault();
-  //       }
-  //     }
-  //
-  //     // setIgnoreScrollEvent(true);
-  //   };
-  //   // subscribe if scroll is necessary
-  //   wrapperRef.current?.addEventListener("wheel", handleWheel, {
-  //     passive: false,
-  //   });
-  //   return () => {
-  //     wrapperRef.current?.removeEventListener("wheel", handleWheel);
-  //   };
-  //
-  // }, []);
-
 
   const handleScroll = () => {
+
 
     const newStartIndex = Math.max(
       0,
@@ -354,9 +278,16 @@ export const Gantt: React.FC<GanttProps> = ({
     );
     let newItems = tasks.slice(newStartIndex, newEndIndex + 1);
     let newOffsetY = newStartIndex * rowHeight;
+
     let {dataSetup, tasksData } = changeTaskData(newItems);
     setDateSetup(dataSetup);
-
+    // console.log("newItems",newItems);
+    // console.log("tasksData",tasksData);
+    // console.log("newOffsetY",newOffsetY);
+    // console.log("state.scrollY",state.scrollY);
+    // if (state.scrollY < 0 && newOffsetY === 0) {
+    //   return
+    // }
     setState({
       visibleItems: tasksData,
       offsetY: newOffsetY,
@@ -365,7 +296,29 @@ export const Gantt: React.FC<GanttProps> = ({
 
   useEffect(() => {
     handleScroll();
-  }, [tasks, state.scrollY]);
+  }, [
+    tasks,
+    viewMode,
+    preStepsCount,
+    rowHeight,
+    barCornerRadius,
+    columnWidth,
+    taskHeight,
+    handleWidth,
+    barProgressColor,
+    barProgressSelectedColor,
+    barBackgroundColor,
+    barBackgroundSelectedColor,
+    projectProgressColor,
+    projectProgressSelectedColor,
+    projectBackgroundColor,
+    projectBackgroundSelectedColor,
+    milestoneBackgroundColor,
+    milestoneBackgroundSelectedColor,
+    rtl,
+    onExpanderClick,
+    state.scrollY
+  ]);
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
       console.log("handleWheel");
