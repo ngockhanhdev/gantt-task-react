@@ -71,20 +71,36 @@ const VirtualizedList = ({ items, itemHeight, renderItem }:any) => {
 
 // Sử dụng component
 const AppTest2 = () => {
-  const items = Array.from({ length: 1000 }, (_, index) => ({
-    id: index,
-    content: `Item ${index + 1}`,
-  }));
 
+  const [items, setItems] = useState(
+    Array.from({ length: 1000 }, (_, index) => ({
+      id: index,
+      content: `Item ${index + 1}`,
+    }))
+  );
   const renderItem = (item:any) => (
     <div style={{ border: '1px solid black', padding: '10px' }}>
       {item.content}
     </div>
   );
 
+  const loadMoreItems = () => {
+    // Giả lập tải thêm dữ liệu
+    const newItems = Array.from({ length: 100 }, (_, index) => ({
+      id: items.length + index,
+      content: `Item ${items.length + index + 1}`,
+    }));
+    setItems((prevItems) => [...prevItems, ...newItems]);
+  };
+
   return (
     <div style={{ height: '500px' }}>
-      <VirtualizedList items={items} itemHeight={50} renderItem={renderItem} />
+      <VirtualizedList
+        items={items}
+        itemHeight={50}
+        renderItem={renderItem}
+        loadMoreItems={loadMoreItems}
+      />
     </div>
   );
 };

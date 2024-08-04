@@ -9,6 +9,7 @@ export type TaskListProps = {
   fontSize: string;
   rowHeight: number;
   ganttHeight: number;
+  ganttFullHeight: number;
   scrollY: number;
   locale: string;
   tasks: Task[];
@@ -51,6 +52,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                                                     onExpanderClick,
                                                     locale,
                                                     ganttHeight,
+                                                    ganttFullHeight,
                                                     taskListRef,
                                                     horizontalContainerClass,
                                                     TaskListHeader,
@@ -92,7 +94,11 @@ export const TaskList: React.FC<TaskListProps> = ({
         className={horizontalContainerClass}
         style={ganttHeight ? { height: ganttHeight } : {}}
       >
-        <TaskListTable {...tableProps} />
+        <div
+          style={ganttFullHeight ? { height: ganttFullHeight } : {}}
+        >
+          <TaskListTable {...tableProps} />
+        </div>
       </div>
     </div>
   );

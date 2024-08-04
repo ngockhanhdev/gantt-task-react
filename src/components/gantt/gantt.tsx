@@ -402,6 +402,7 @@ export const Gantt: React.FC<GanttProps> = ({
   }, [state.barTasks, state.scrollY]);
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
+      console.log("handleWheel");
       // if (event.shiftKey || event.deltaX) {
       //   const scrollMove = event.deltaX ? event.deltaX : event.deltaY;
       //   let newScrollX = scrollX + scrollMove;
@@ -450,6 +451,7 @@ export const Gantt: React.FC<GanttProps> = ({
   //
 
   const handleScrollY = (event: SyntheticEvent<HTMLDivElement>) => {
+    console.log("handleScrollY");
     if (state.scrollY !== event.currentTarget.scrollTop && !ignoreScrollEvent.current) {
       setState({
         scrollY: event.currentTarget.scrollTop,
@@ -657,6 +659,7 @@ export const Gantt: React.FC<GanttProps> = ({
     headerHeight,
     scrollY: state.scrollY,
     ganttHeight,
+    ganttFullHeight,
     horizontalContainerClass: styles.horizontalContainer,
     selectedTask: state.selectedTask,
     taskListRef,

@@ -78,21 +78,22 @@ export const TaskGantt: React.FC<TaskGanttProps> = ({
               marginTop: barProps?.offsetY || 0,
             }}
           >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width={gridProps.svgWidth}
+              height={ganttHeight + barProps.rowHeight}
+              // height={barProps.rowHeight * barProps.tasks.length}
+              fontFamily={barProps.fontFamily}
+              ref={ganttSVGRef}
+            >
+              <Grid {...gridProps} />
+              <TaskGanttContent
+                {...newBarProps}
+                ItemGanttContent={ItemGanttContent}
+              />
+            </svg>
           </div>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={gridProps.svgWidth}
-            height={ganttHeight}
-            // height={barProps.rowHeight * barProps.tasks.length}
-            fontFamily={barProps.fontFamily}
-            ref={ganttSVGRef}
-          >
-            <Grid {...gridProps} />
-            <TaskGanttContent
-              {...newBarProps}
-              ItemGanttContent={ItemGanttContent}
-            />
-          </svg>
+
         </div>
 
       </div>
