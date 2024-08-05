@@ -23,30 +23,32 @@ export type TooltipProps = {
     fontSize: string;
     fontFamily: string;
   }>;
+  offsetY: number;
 };
 export const Tooltip: React.FC<TooltipProps> = ({
-  task,
-  rowHeight,
-  rtl,
-  svgContainerHeight,
-  svgContainerWidth,
-  scrollX,
-  scrollY,
-  arrowIndent,
-  fontSize,
-  fontFamily,
-  headerHeight,
-  taskListWidth,
-  TooltipContent,
-}) => {
+                                                  task,
+                                                  rowHeight,
+                                                  rtl,
+                                                  svgContainerHeight,
+                                                  svgContainerWidth,
+                                                  scrollX,
+                                                  scrollY,
+                                                  arrowIndent,
+                                                  fontSize,
+                                                  fontFamily,
+                                                  headerHeight,
+                                                  taskListWidth,
+                                                  TooltipContent,
+                                                  offsetY = 0,
+                                                }) => {
   const tooltipRef = useRef<HTMLDivElement | null>(null);
-  const [state,setState] = useSetState<{
+  const [state, setState] = useSetState<{
     relatedX: number,
     relatedY: number,
   }>({
     relatedX: 0,
     relatedY: 0,
-  })
+  });
   useEffect(() => {
     if (tooltipRef.current) {
       const tooltipHeight = tooltipRef.current.offsetHeight * 1.1;
@@ -86,10 +88,13 @@ export const Tooltip: React.FC<TooltipProps> = ({
       if (tooltipLowerPoint > svgContainerHeight - scrollY) {
         newRelatedY = svgContainerHeight - tooltipHeight;
       }
+      if (offsetY > 0) {
+        newRelatedY += offsetY;
+      }
       setState({
         relatedX: newRelatedX,
         relatedY: newRelatedY,
-      })
+      });
     }
   }, [
     tooltipRef,

@@ -268,6 +268,10 @@ export const Gantt: React.FC<GanttProps> = ({
   const handleScroll = () => {
 
 
+    // if (ganttHeight && ganttFullHeight < ganttHeight && state.visibleItems.length > 0) {
+    //   console.log('vao');
+    //   return
+    // }
     const newStartIndex = Math.max(
       0,
       Math.floor(state.scrollY / rowHeight),
@@ -625,6 +629,7 @@ export const Gantt: React.FC<GanttProps> = ({
             TooltipContent={TooltipContent}
             rtl={rtl}
             svgWidth={svgWidth}
+            offsetY={state.offsetY}
           />
         )}
         <VerticalScroll

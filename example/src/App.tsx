@@ -71,7 +71,6 @@ const App = () => {
   };
 
   // const ItemGanttContent : React.FC = ({task,rowHeight}: any) => {
-  //   console.log('rowHeight',rowHeight);
   //   return <>
   //   <div>{task?.name}</div>
   //   </>
