@@ -97,7 +97,6 @@ const App = () => {
 
   let configColor :any = {
     // #83b5fe
-    // #83b5fe
     barCornerRadius: 3,
     barProgressColor : "#79c780",
     barProgressSelectedColor : "#5b9460",
