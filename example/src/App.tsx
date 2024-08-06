@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Task, ViewMode, Gantt } from "gantt-task-react-v2";
 import { ViewSwitcher } from "./components/view-switcher";
 import { getStartEndDateForProject, initTasks } from "./helper";
@@ -12,7 +12,9 @@ const App = () => {
   const [view, setView] = React.useState<ViewMode>(ViewMode.Day);
   const [tasks, setTasks] = React.useState<Task[]>(initTasks());
   const [isChecked, setIsChecked] = React.useState(true);
+  const [ganttHeight, setGanttHeight] = React.useState(0);
   let columnWidth = 65;
+  let rowHeight = 50;
   if (view === ViewMode.Year) {
     columnWidth = 350;
   } else if (view === ViewMode.Month) {
@@ -33,7 +35,7 @@ const App = () => {
       ) {
         const changedProject = { ...project, start, end };
         newTasks = newTasks.map(t =>
-          t.id === task.project ? changedProject : t
+          t.id === task.project ? changedProject : t,
         );
       }
     }
@@ -70,6 +72,44 @@ const App = () => {
     console.log("On expander click Id:" + task.id);
   };
 
+  useEffect(() => {
+    const editorEl: any = document.getElementById(`h-editor`);
+    const initSetting = (editorWidth: number, editorHeight: number) => {
+      console.log("editorWidth", editorWidth);
+      console.log("editorHeight", editorHeight);
+
+      setGanttHeight(editorHeight - rowHeight)
+    };
+    const myObserver = new ResizeObserver(([entry]) => {
+      // throttle(initSetting, 1000)(entry.contentRect.width)
+      initSetting(entry.contentRect.width, entry.contentRect.height);
+
+      // throttle(initSetting, 1000)(windowWidth)
+    });
+
+
+    myObserver.observe(editorEl);
+
+    return () => {
+      myObserver.disconnect();
+    };
+  }, []);
+
+  let configColor :any = {
+    // #83b5fe
+    // #83b5fe
+    barCornerRadius: 3,
+    barProgressColor : "#79c780",
+    barProgressSelectedColor : "#5b9460",
+    barBackgroundColor : "#8ee997",
+    barBackgroundSelectedColor : "#6aaf71",
+    projectProgressColor : "#709ad8",
+    projectProgressSelectedColor : "#5474a2",
+    projectBackgroundColor : "#83b5fe",
+    projectBackgroundSelectedColor : "#6288be",
+    milestoneBackgroundColor : "#83b5fe",
+    milestoneBackgroundSelectedColor : "#6288be",
+  }
   // const ItemGanttContent : React.FC = ({task,rowHeight}: any) => {
   //   return <>
   //   <div>{task?.name}</div>
@@ -87,22 +127,32 @@ const App = () => {
 
 
       <h3>Gantt With Limited Height</h3>
-      <Gantt
-        tasks={tasks}
-        viewMode={view}
-        onDateChange={handleTaskChange}
-        onDelete={handleTaskDelete}
-        onProgressChange={handleProgressChange}
-        onDoubleClick={handleDblClick}
-        onClick={handleClick}
-        onSelect={handleSelect}
-        onExpanderClick={handleExpanderClick}
-        listCellWidth={isChecked ? "155px" : ""}
-        ganttHeight={1000}
-        rowHeight={50}
-        columnWidth={columnWidth}
-        // ItemGanttContent={ItemGanttContent}
-      />
+      <div
+        id={"h-editor"}
+        style={{
+          maxHeight: "calc(100vh - 140px)",
+        }}
+      >
+
+        <Gantt
+          {...configColor}
+          tasks={tasks}
+          viewMode={view}
+          onDateChange={handleTaskChange}
+          onDelete={handleTaskDelete}
+          onProgressChange={handleProgressChange}
+          onDoubleClick={handleDblClick}
+          onClick={handleClick}
+          onSelect={handleSelect}
+          onExpanderClick={handleExpanderClick}
+          listCellWidth={isChecked ? "155px" : ""}
+          ganttHeight={ganttHeight}
+          rowHeight={rowHeight}
+          columnWidth={columnWidth}
+          // ItemGanttContent={ItemGanttContent}
+        />
+      </div>
+
     </div>
   );
 };

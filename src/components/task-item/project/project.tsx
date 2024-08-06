@@ -30,7 +30,6 @@ export const Project: React.FC<TaskItemProps> = ({ task, isSelected }) => {
 
   return (
     <g tabIndex={0} className={styles.projectWrapper}>
-      kkkk
       <rect
         fill={barColor}
         x={task.x1}

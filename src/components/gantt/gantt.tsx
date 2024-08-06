@@ -197,6 +197,35 @@ export const Gantt: React.FC<GanttProps> = ({
   ]);
 
   useEffect(() => {
+    handleScroll();
+
+  }, [
+    tasks,
+    viewMode,
+    preStepsCount,
+    rowHeight,
+    barCornerRadius,
+    columnWidth,
+    taskHeight,
+    handleWidth,
+    barProgressColor,
+    barProgressSelectedColor,
+    barBackgroundColor,
+    barBackgroundSelectedColor,
+    projectProgressColor,
+    projectProgressSelectedColor,
+    projectBackgroundColor,
+    projectBackgroundSelectedColor,
+    milestoneBackgroundColor,
+    milestoneBackgroundSelectedColor,
+    rtl,
+    ganttFullHeight,
+    ganttHeight,
+    // scrollX,
+    onExpanderClick,
+  ]);
+
+  useEffect(() => {
     if (
       viewMode === dateSetup.viewMode &&
       ((viewDate && !state.currentViewDate) ||
@@ -266,19 +295,19 @@ export const Gantt: React.FC<GanttProps> = ({
   // scroll events TODO
 
   const handleScroll = () => {
-
-
     // if (ganttHeight && ganttFullHeight < ganttHeight && state.visibleItems.length > 0) {
     //   console.log('vao');
     //   return
     // }
+    // ganttHeight={ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight}
+    let ganttHeightCheck = ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight
     const newStartIndex = Math.max(
       0,
       Math.floor(state.scrollY / rowHeight),
     );
     const newEndIndex = Math.min(
       tasks.length - 1,
-      Math.floor((state.scrollY + ganttHeight) / rowHeight),
+      Math.floor((state.scrollY + ganttHeightCheck) / rowHeight),
     );
     let newItems = tasks.slice(newStartIndex, newEndIndex + 1);
     let newOffsetY = newStartIndex * rowHeight;
@@ -297,35 +326,18 @@ export const Gantt: React.FC<GanttProps> = ({
       offsetY: newOffsetY,
     });
   };
-
   useEffect(() => {
-    handleScroll();
+    if (ganttHeight && ganttHeight < ganttFullHeight) {
+      handleScroll();
+    }
   }, [
-    tasks,
-    viewMode,
-    preStepsCount,
-    rowHeight,
-    barCornerRadius,
-    columnWidth,
-    taskHeight,
-    handleWidth,
-    barProgressColor,
-    barProgressSelectedColor,
-    barBackgroundColor,
-    barBackgroundSelectedColor,
-    projectProgressColor,
-    projectProgressSelectedColor,
-    projectBackgroundColor,
-    projectBackgroundSelectedColor,
-    milestoneBackgroundColor,
-    milestoneBackgroundSelectedColor,
-    rtl,
-    onExpanderClick,
-    state.scrollY
+    state.scrollY,
+    ganttHeight,
+    ganttFullHeight
   ]);
   useEffect(() => {
+
     const handleWheel = (event: WheelEvent) => {
-      console.log("handleWheel");
       // if (event.shiftKey || event.deltaX) {
       //   const scrollMove = event.deltaX ? event.deltaX : event.deltaY;
       //   let newScrollX = scrollX + scrollMove;
@@ -344,6 +356,8 @@ export const Gantt: React.FC<GanttProps> = ({
         } else if (newScrollY > ganttFullHeight - ganttHeight) {
           newScrollY = ganttFullHeight - ganttHeight;
         }
+        console.log('state.scrollY',state.scrollY);
+        console.log("handleWheel",newScrollY);
         if (newScrollY !== state.scrollY) {
           setState({
             scrollY: newScrollY,
@@ -355,9 +369,14 @@ export const Gantt: React.FC<GanttProps> = ({
       ignoreScrollEvent.current = true;
     };
     // subscribe if scroll is necessary
-    wrapperRef.current?.addEventListener("wheel", handleWheel, {
-      passive: false,
-    });
+
+    if (ganttHeight && ganttHeight < ganttFullHeight) {
+      wrapperRef.current?.addEventListener("wheel", handleWheel, {
+        passive: false,
+      });
+    } else {
+      wrapperRef.current?.removeEventListener("wheel", handleWheel);
+    }
     return () => {
       wrapperRef.current?.removeEventListener("wheel", handleWheel);
     };
@@ -365,17 +384,17 @@ export const Gantt: React.FC<GanttProps> = ({
     // wrapperRef,
     state.scrollY,
     // scrollX,
-    // ganttHeight,
+    ganttHeight,
     // svgWidth,
     rtl,
-    // ganttFullHeight,
+    ganttFullHeight,
   ]);
 
   //
 
   const handleScrollY = (event: SyntheticEvent<HTMLDivElement>) => {
-    console.log("handleScrollY");
     if (state.scrollY !== event.currentTarget.scrollTop && !ignoreScrollEvent.current) {
+      console.log("handleScrollY",event.currentTarget.scrollTop);
       setState({
         scrollY: event.currentTarget.scrollTop,
       });
@@ -388,11 +407,14 @@ export const Gantt: React.FC<GanttProps> = ({
   // const handleScrollX = (event: SyntheticEvent<HTMLDivElement>) => {
   //   console.log("handleScrollX",event);
   //
-  //   if (scrollX !== event.currentTarget.scrollLeft && !ignoreScrollEvent) {
-  //     setScrollX(event.currentTarget.scrollLeft);
-  //     setIgnoreScrollEvent(true);
+  //   if (state.scrollX !== event.currentTarget.scrollLeft && !ignoreScrollEvent) {
+  //     setState({
+  //       scrollX: event.currentTarget.scrollLeft,
+  //     });
+  //     // @ts-ignore
+  //     ignoreScrollEvent.current = true;
   //   } else {
-  //     setIgnoreScrollEvent(false);
+  //     ignoreScrollEvent.current = false;
   //   }
   // };
 
@@ -439,6 +461,7 @@ export const Gantt: React.FC<GanttProps> = ({
       } else if (newScrollY > ganttFullHeight - ganttHeight) {
         newScrollY = ganttFullHeight - ganttHeight;
       }
+      console.log('handleKeyDown', newScrollY);
       setState({
         scrollY: newScrollY,
       });
@@ -579,7 +602,7 @@ export const Gantt: React.FC<GanttProps> = ({
     locale,
     headerHeight,
     scrollY: state.scrollY,
-    ganttHeight,
+    ganttHeight : ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight,
     ganttFullHeight,
     horizontalContainerClass: styles.horizontalContainer,
     selectedTask: state.selectedTask,
@@ -608,7 +631,7 @@ export const Gantt: React.FC<GanttProps> = ({
           gridProps={gridProps}
           calendarProps={calendarProps}
           barProps={barProps}
-          ganttHeight={ganttHeight}
+          ganttHeight={ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight}
           scrollY={state.scrollY}
           scrollX={state.scrollX}
           ItemGanttContent={!!ItemGanttContent ? ItemRenderGanttContent : undefined}
@@ -634,7 +657,7 @@ export const Gantt: React.FC<GanttProps> = ({
         )}
         <VerticalScroll
           ganttFullHeight={ganttFullHeight}
-          ganttHeight={ganttHeight}
+          ganttHeight={ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight}
           headerHeight={headerHeight}
           scroll={state.scrollY}
           onScroll={handleScrollY}
@@ -643,8 +666,8 @@ export const Gantt: React.FC<GanttProps> = ({
       </div>
       {/*<HorizontalScroll*/}
       {/*  svgWidth={svgWidth}*/}
-      {/*  taskListWidth={taskListWidth}*/}
-      {/*  scroll={scrollX}*/}
+      {/*  taskListWidth={state.taskListWidth}*/}
+      {/*  scroll={state.scrollX}*/}
       {/*  rtl={rtl}*/}
       {/*  onScroll={handleScrollX}*/}
       {/*/>*/}
