@@ -67,7 +67,6 @@ export const Gantt: React.FC<GanttProps> = ({
                                               onDelete,
                                               onSelect,
                                               onExpanderClick,
-                                              defaultScrollX = 0,
                                               defaultScrollY = 0,
                                               onScrollTask,
                                             }) => {
@@ -229,13 +228,6 @@ export const Gantt: React.FC<GanttProps> = ({
   ]);
 
   useEffect(() => {
-    if (defaultScrollX !== state.scrollX) {
-      setState({
-        scrollX: defaultScrollX,
-      });
-    }
-  }, [defaultScrollX]);
-  useEffect(() => {
     if (defaultScrollY !== state.scrollY) {
       setState({
         scrollY: defaultScrollY,
@@ -346,6 +338,11 @@ export const Gantt: React.FC<GanttProps> = ({
   useEffect(() => {
     if (ganttHeight && ganttHeight < ganttFullHeight) {
       handleScroll();
+      if (onScrollTask) {
+        onScrollTask({
+          y: state.scrollY,
+        });
+      }
     }
   }, [
     state.scrollY,
@@ -392,11 +389,6 @@ export const Gantt: React.FC<GanttProps> = ({
     wrapperRef.current?.addEventListener("wheel", handleWheel, {
       passive: false,
     });
-    if (onScrollTask) {
-      if (defaultScrollX !== state.scrollX || defaultScrollY !== state.scrollY) {
-        onScrollTask(state.scrollX, state.scrollY);
-      }
-    }
     // } else {
     //   wrapperRef.current?.removeEventListener("wheel", handleWheel);
     // }
