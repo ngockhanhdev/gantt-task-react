@@ -393,7 +393,9 @@ export const Gantt: React.FC<GanttProps> = ({
       passive: false,
     });
     if (onScrollTask) {
-      onScrollTask(state.scrollX, state.scrollY,);
+      if (defaultScrollX !== state.scrollX || defaultScrollY !== state.scrollY) {
+        onScrollTask(state.scrollX, state.scrollY);
+      }
     }
     // } else {
     //   wrapperRef.current?.removeEventListener("wheel", handleWheel);
