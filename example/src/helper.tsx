@@ -112,7 +112,7 @@ export function initTasks() {
       type: "task",
     },
   ];
-  tasks = [...tasks,...AddNewData(tasks.length)]
+  // tasks = [...tasks,...AddNewData(tasks.length)]
   return tasks;
 }
 

@@ -20,7 +20,7 @@ import { BarTask } from "../../types/bar-task";
 import { convertToBarTasks } from "../../helpers/bar-helper";
 import { GanttEvent } from "../../types/gantt-task-actions";
 import { DateSetup } from "../../types/date-setup";
-// import { HorizontalScroll } from "../other/horizontal-scroll";
+import { HorizontalScroll } from "../other/horizontal-scroll";
 import { removeHiddenTasks, sortTasks } from "../../helpers/other-helper";
 import styles from "./gantt.module.css";
 import useSetState from "../../helpers/useSetState";
@@ -67,6 +67,9 @@ export const Gantt: React.FC<GanttProps> = ({
                                               onDelete,
                                               onSelect,
                                               onExpanderClick,
+                                              defaultScrollX = 0,
+                                              defaultScrollY = 0,
+                                              onScrollTask,
                                             }) => {
   console.log("gannnnt");
 
@@ -97,7 +100,7 @@ export const Gantt: React.FC<GanttProps> = ({
     },
     selectedTask: undefined,
     scrollY: 0,
-    scrollX: -1,
+    scrollX: 0,
 
     // scroll virtualized
     visibleItems: [],
@@ -226,6 +229,20 @@ export const Gantt: React.FC<GanttProps> = ({
   ]);
 
   useEffect(() => {
+    if (defaultScrollX !== state.scrollX) {
+      setState({
+        scrollX: defaultScrollX,
+      });
+    }
+  }, [defaultScrollX]);
+  useEffect(() => {
+    if (defaultScrollY !== state.scrollY) {
+      setState({
+        scrollY: defaultScrollY,
+      });
+    }
+  }, [defaultScrollY]);
+  useEffect(() => {
     if (
       viewMode === dateSetup.viewMode &&
       ((viewDate && !state.currentViewDate) ||
@@ -300,7 +317,7 @@ export const Gantt: React.FC<GanttProps> = ({
     //   return
     // }
     // ganttHeight={ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight}
-    let ganttHeightCheck = ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight
+    let ganttHeightCheck = ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight;
     const newStartIndex = Math.max(
       0,
       Math.floor(state.scrollY / rowHeight),
@@ -312,7 +329,7 @@ export const Gantt: React.FC<GanttProps> = ({
     let newItems = tasks.slice(newStartIndex, newEndIndex + 1);
     let newOffsetY = newStartIndex * rowHeight;
 
-    let {dataSetup, tasksData } = changeTaskData(newItems);
+    let { dataSetup, tasksData } = changeTaskData(newItems);
     setDateSetup(dataSetup);
     // console.log("newItems",newItems);
     // console.log("tasksData",tasksData);
@@ -333,31 +350,32 @@ export const Gantt: React.FC<GanttProps> = ({
   }, [
     state.scrollY,
     ganttHeight,
-    ganttFullHeight
+    ganttFullHeight,
   ]);
   useEffect(() => {
 
     const handleWheel = (event: WheelEvent) => {
-      // if (event.shiftKey || event.deltaX) {
-      //   const scrollMove = event.deltaX ? event.deltaX : event.deltaY;
-      //   let newScrollX = scrollX + scrollMove;
-      //   if (newScrollX < 0) {
-      //     newScrollX = 0;
-      //   } else if (newScrollX > svgWidth) {
-      //     newScrollX = svgWidth;
-      //   }
-      //   setScrollX(newScrollX);
-      //   event.preventDefault();
-      // } else
-      if (ganttHeight) {
+      if (event.shiftKey || event.deltaX) {
+        const scrollMove = event.deltaX ? event.deltaX : event.deltaY;
+        let newScrollX = state.scrollX + scrollMove;
+        if (newScrollX < 0) {
+          newScrollX = 0;
+        } else if (newScrollX > svgWidth) {
+          newScrollX = svgWidth;
+        }
+        if (newScrollX !== state.scrollX) {
+          setState({
+            scrollX: newScrollX,
+          });
+          event.preventDefault();
+        }
+      } else if (ganttHeight) {
         let newScrollY = state.scrollY + event.deltaY;
         if (newScrollY < 0) {
           newScrollY = 0;
         } else if (newScrollY > ganttFullHeight - ganttHeight) {
           newScrollY = ganttFullHeight - ganttHeight;
         }
-        console.log('state.scrollY',state.scrollY);
-        console.log("handleWheel",newScrollY);
         if (newScrollY !== state.scrollY) {
           setState({
             scrollY: newScrollY,
@@ -370,20 +388,23 @@ export const Gantt: React.FC<GanttProps> = ({
     };
     // subscribe if scroll is necessary
 
-    if (ganttHeight && ganttHeight < ganttFullHeight) {
-      wrapperRef.current?.addEventListener("wheel", handleWheel, {
-        passive: false,
-      });
-    } else {
-      wrapperRef.current?.removeEventListener("wheel", handleWheel);
+    // if (ganttHeight && ganttHeight < ganttFullHeight) {
+    wrapperRef.current?.addEventListener("wheel", handleWheel, {
+      passive: false,
+    });
+    if (onScrollTask) {
+      onScrollTask(state.scrollX, state.scrollY,);
     }
+    // } else {
+    //   wrapperRef.current?.removeEventListener("wheel", handleWheel);
+    // }
     return () => {
       wrapperRef.current?.removeEventListener("wheel", handleWheel);
     };
   }, [
     // wrapperRef,
     state.scrollY,
-    // scrollX,
+    state.scrollX,
     ganttHeight,
     // svgWidth,
     rtl,
@@ -394,7 +415,6 @@ export const Gantt: React.FC<GanttProps> = ({
 
   const handleScrollY = (event: SyntheticEvent<HTMLDivElement>) => {
     if (state.scrollY !== event.currentTarget.scrollTop && !ignoreScrollEvent.current) {
-      console.log("handleScrollY",event.currentTarget.scrollTop);
       setState({
         scrollY: event.currentTarget.scrollTop,
       });
@@ -404,19 +424,16 @@ export const Gantt: React.FC<GanttProps> = ({
     }
   };
 
-  // const handleScrollX = (event: SyntheticEvent<HTMLDivElement>) => {
-  //   console.log("handleScrollX",event);
-  //
-  //   if (state.scrollX !== event.currentTarget.scrollLeft && !ignoreScrollEvent) {
-  //     setState({
-  //       scrollX: event.currentTarget.scrollLeft,
-  //     });
-  //     // @ts-ignore
-  //     ignoreScrollEvent.current = true;
-  //   } else {
-  //     ignoreScrollEvent.current = false;
-  //   }
-  // };
+  const handleScrollX = (event: SyntheticEvent<HTMLDivElement>) => {
+    if (state.scrollX !== event.currentTarget.scrollLeft && !ignoreScrollEvent.current) {
+      setState({
+        scrollX: event.currentTarget.scrollLeft,
+      });
+      ignoreScrollEvent.current = true;
+    } else {
+      ignoreScrollEvent.current = false;
+    }
+  };
 
   /**
    * Handles arrow keys events and transform it to new scroll
@@ -461,7 +478,7 @@ export const Gantt: React.FC<GanttProps> = ({
       } else if (newScrollY > ganttFullHeight - ganttHeight) {
         newScrollY = ganttFullHeight - ganttHeight;
       }
-      console.log('handleKeyDown', newScrollY);
+      // console.log('handleKeyDown', newScrollY);
       setState({
         scrollY: newScrollY,
       });
@@ -525,7 +542,7 @@ export const Gantt: React.FC<GanttProps> = ({
             t.id === changedTask.id ? changedTask : t,
           );
           setState({
-            visibleItems: newTaskVisibleList
+            visibleItems: newTaskVisibleList,
           });
         }
       }
@@ -602,7 +619,7 @@ export const Gantt: React.FC<GanttProps> = ({
     locale,
     headerHeight,
     scrollY: state.scrollY,
-    ganttHeight : ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight,
+    ganttHeight: ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight,
     ganttFullHeight,
     horizontalContainerClass: styles.horizontalContainer,
     selectedTask: state.selectedTask,
@@ -664,13 +681,13 @@ export const Gantt: React.FC<GanttProps> = ({
           rtl={rtl}
         />
       </div>
-      {/*<HorizontalScroll*/}
-      {/*  svgWidth={svgWidth}*/}
-      {/*  taskListWidth={state.taskListWidth}*/}
-      {/*  scroll={state.scrollX}*/}
-      {/*  rtl={rtl}*/}
-      {/*  onScroll={handleScrollX}*/}
-      {/*/>*/}
+      <HorizontalScroll
+        svgWidth={svgWidth}
+        taskListWidth={state.taskListWidth}
+        scroll={state.scrollX}
+        rtl={rtl}
+        onScroll={handleScrollX}
+      />
     </div>
   );
 };

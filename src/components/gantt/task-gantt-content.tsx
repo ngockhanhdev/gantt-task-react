@@ -144,7 +144,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
     };
 
     const handleMouseUp = async (event: MouseEvent) => {
-      console.log("handleMouseUp gant content");
+      // console.log("handleMouseUp gant content");
       const { action, originalSelectedTask, changedTask } = ganttEvent;
       if (!changedTask || !point || !svg?.current || !originalSelectedTask)
         return;

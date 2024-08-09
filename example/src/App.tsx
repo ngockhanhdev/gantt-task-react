@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Task, ViewMode, Gantt } from "gantt-task-react-v2";
 import { ViewSwitcher } from "./components/view-switcher";
 import { getStartEndDateForProject, initTasks } from "./helper";
@@ -9,10 +9,12 @@ import "gantt-task-react-v2/dist/index.css";
 // Init
 const App = () => {
 
-  const [view, setView] = React.useState<ViewMode>(ViewMode.Day);
-  const [tasks, setTasks] = React.useState<Task[]>(initTasks());
-  const [isChecked, setIsChecked] = React.useState(true);
-  const [ganttHeight, setGanttHeight] = React.useState(0);
+  const [view, setView] = useState<ViewMode>(ViewMode.Day);
+  const [tasks, setTasks] = useState<Task[]>(initTasks());
+  const [isChecked, setIsChecked] = useState(true);
+  const [ganttHeight, setGanttHeight] = useState(200);
+  const [scrollX, setScrollX] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
   let columnWidth = 65;
   let rowHeight = 50;
   if (view === ViewMode.Year) {
@@ -68,47 +70,58 @@ const App = () => {
   };
 
   const handleExpanderClick = (task: Task) => {
-    setTasks(tasks.map(t => (t.id === task.id ? task : t)));
+    let newTask = tasks.map(t => (t.id === task.id ? task : t));
+    setTasks(newTask);
     console.log("On expander click Id:" + task.id);
+    console.log("On expander tasks:", newTask);
   };
 
   useEffect(() => {
-    const editorEl: any = document.getElementById(`h-editor`);
-    const initSetting = (editorWidth: number, editorHeight: number) => {
-      console.log("editorWidth", editorWidth);
-      console.log("editorHeight", editorHeight);
-
-      setGanttHeight(editorHeight - rowHeight)
-    };
-    const myObserver = new ResizeObserver(([entry]) => {
-      // throttle(initSetting, 1000)(entry.contentRect.width)
-      initSetting(entry.contentRect.width, entry.contentRect.height);
-
-      // throttle(initSetting, 1000)(windowWidth)
-    });
-
-
-    myObserver.observe(editorEl);
-
-    return () => {
-      myObserver.disconnect();
-    };
+    setGanttHeight(200);
+    // const editorEl: any = document.getElementById(`h-editor`);
+    // const initSetting = (editorWidth: number, editorHeight: number) => {
+    //   console.log("editorWidth", editorWidth);
+    //   console.log("editorHeight", editorHeight);
+    //
+    //   setGanttHeight(editorHeight - rowHeight)
+    // };
+    // const myObserver = new ResizeObserver(([entry]) => {
+    //   // throttle(initSetting, 1000)(entry.contentRect.width)
+    //   initSetting(entry.contentRect.width, entry.contentRect.height);
+    //
+    //   // throttle(initSetting, 1000)(windowWidth)
+    // });
+    //
+    //
+    // myObserver.observe(editorEl);
+    //
+    // return () => {
+    //   myObserver.disconnect();
+    // };
   }, []);
 
-  let configColor :any = {
+  const onScrollTask = (x: number, y: number) => {
+    if (x !== scrollX) {
+      setScrollX(x)
+    }
+    if (y !== scrollY) {
+      setScrollY(y);
+    }
+  }
+  let configColor: any = {
     // #83b5fe
     barCornerRadius: 3,
-    barProgressColor : "#79c780",
-    barProgressSelectedColor : "#5b9460",
-    barBackgroundColor : "#8ee997",
-    barBackgroundSelectedColor : "#6aaf71",
-    projectProgressColor : "#709ad8",
-    projectProgressSelectedColor : "#5474a2",
-    projectBackgroundColor : "#83b5fe",
-    projectBackgroundSelectedColor : "#6288be",
-    milestoneBackgroundColor : "#83b5fe",
-    milestoneBackgroundSelectedColor : "#6288be",
-  }
+    barProgressColor: "#79c780",
+    barProgressSelectedColor: "#5b9460",
+    barBackgroundColor: "#8ee997",
+    barBackgroundSelectedColor: "#6aaf71",
+    projectProgressColor: "#709ad8",
+    projectProgressSelectedColor: "#5474a2",
+    projectBackgroundColor: "#83b5fe",
+    projectBackgroundSelectedColor: "#6288be",
+    milestoneBackgroundColor: "#83b5fe",
+    milestoneBackgroundSelectedColor: "#6288be",
+  };
   // const ItemGanttContent : React.FC = ({task,rowHeight}: any) => {
   //   return <>
   //   <div>{task?.name}</div>
@@ -126,6 +139,13 @@ const App = () => {
 
 
       <h3>Gantt With Limited Height</h3>
+      <div>
+        scrollX :
+        <input type="text" value={scrollX} onChange={(event: any) => setScrollX(event.target.value)} />
+      </div>
+      <div> scrollY :
+        <input type="text" value={scrollY} onChange={(event: any) => setScrollY(event.target.value)} />
+      </div>
       <div
         id={"h-editor"}
         style={{
@@ -135,6 +155,9 @@ const App = () => {
 
         <Gantt
           {...configColor}
+          defaultScrollX={scrollX}
+          defaultScrollY={scrollY}
+          onScrollTask={onScrollTask}
           tasks={tasks}
           viewMode={view}
           onDateChange={handleTaskChange}

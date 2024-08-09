@@ -88,6 +88,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
       if (tooltipLowerPoint > svgContainerHeight - scrollY) {
         newRelatedY = svgContainerHeight - tooltipHeight;
       }
+      // console.log("scrollX",scrollX);
+      // console.log("newRelatedX",newRelatedX);
       if (offsetY > 0) {
         newRelatedY += offsetY;
       }

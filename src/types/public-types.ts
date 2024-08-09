@@ -72,6 +72,10 @@ export interface EventOption {
    * Invokes on expander on task list
    */
   onExpanderClick?: (task: Task) => void;
+  /**
+   * Invokes on scroll on task list
+   */
+  onScrollTask?: (x: number,y:number) => void;
 }
 
 export interface DisplayOption {
@@ -95,6 +99,8 @@ export interface StylingOption {
   handleWidth?: number;
   fontFamily?: string;
   fontSize?: string;
+  defaultScrollX?: number;
+  defaultScrollY?: number;
   /**
    * How many of row width can be taken by task.
    * From 0 to 100

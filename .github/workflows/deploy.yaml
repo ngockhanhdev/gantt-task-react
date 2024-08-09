@@ -1,0 +1,122 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-and-deploy-staging:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        run: docker build -t ganttchart:staging -f Dockerfile.staging .
+
+      - name: Tag Docker image
+        run: docker tag ganttchart:staging ${{ secrets.DOCKER_USERNAME }}/ganttchart:staging
+
+      - name: Push Docker image to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - run: docker push ${{ secrets.DOCKER_USERNAME }}/ganttchart:staging
+
+      - name: Deploy to Staging
+        env:
+          HOST: ${{ secrets.SERVER_HOST }}
+          USERNAME: ${{ secrets.SERVER_USERNAME }}
+          SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          echo "$SSH_KEY" > key.pem
+          chmod 600 key.pem
+          ssh -o StrictHostKeyChecking=no -i key.pem $USERNAME@$HOST << EOF
+            docker stop ganttchart || true
+            docker rm ganttchart || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/ganttchart:staging
+            docker container run -d -p 3210:3000 --name ganttchart ${{ secrets.DOCKER_USERNAME }}/ganttchart:staging
+          EOF
+
+  build-and-deploy-production:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        run: docker build -t ganttchart:production .
+
+      - name: Tag Docker image
+        run: docker tag ganttchart:production ${{ secrets.DOCKER_USERNAME }}/ganttchart:production
+
+      - name: Push Docker image to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - run: docker push ${{ secrets.DOCKER_USERNAME }}/ganttchart:production
+
+      - name: Deploy to Production
+        env:
+          HOST: ${{ secrets.SERVER_HOST }}
+          USERNAME: ${{ secrets.SERVER_USERNAME }}
+          SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          echo "$SSH_KEY" > key.pem
+          chmod 600 key.pem
+          ssh -o StrictHostKeyChecking=no -i key.pem $USERNAME@$HOST << EOF
+            docker stop ganttchart || true
+            docker rm ganttchart || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/ganttchart:production
+            docker container run -d -p 8000:80 --name ganttchart ${{ secrets.DOCKER_USERNAME }}/ganttchart:production
+          EOF
+
+#        run: |
+#          echo "$SSH_KEY" > key.pem
+#          chmod 600 key.pem
+#          rsync -r --quiet --delete-after --chown=$USERNAME:$USERNAME ./build/ $USERNAME@$HOST:$APP_DIR
+
+#  build:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v2
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v1
+#
+#      - name: Login to DockerHub
+#        uses: docker/login-action@v2
+#        with:
+#          username: ${{ secrets.DOCKER_USERNAME }}
+#          password: ${{ secrets.DOCKER_PASSWORD }}
+#
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@v3
+#        with:
+#          context: .
+#          push: true
+#          tags: ${{ secrets.DOCKER_USERNAME }}/ganttchart:latest
+#
+#      - name: Deploy to Server
+#        env:
+#          HOST: ${{ secrets.SERVER_HOST }}
+#          USERNAME: ${{ secrets.SERVER_USERNAME }}
+#          SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+#          IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/ganttchart:latest
+#        run: |
+#          echo "$SSH_KEY" > key.pem
+#          chmod 600 key.pem
+#          ssh -o StrictHostKeyChecking=no -i key.pem $USERNAME@$HOST << EOF
+#            docker pull $IMAGE_NAME
+#            docker stop ganttchart || true
+#            docker rm ganttchart || true
+#            docker container run -d -p 8000:80 --name ganttchart $IMAGE_NAME
+#          EOF

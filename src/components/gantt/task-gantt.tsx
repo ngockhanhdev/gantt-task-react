@@ -36,7 +36,7 @@ export const TaskGantt: React.FC<TaskGanttProps> = ({
 
   useEffect(() => {
     if (horizontalContainerRef.current) {
-      console.log("scrollY", scrollY);
+      // console.log("scrollY", scrollY);
       horizontalContainerRef.current.scrollTop = scrollY;
     }
   }, [scrollY]);
