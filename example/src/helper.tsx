@@ -19,100 +19,163 @@ export function AddNewData(taskLength:number) : any {
 }
 
 export function initTasks() {
-  const currentDate = new Date();
-  let tasks: Task[] = [
+  let tasks: any[] = [
     {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 15),
-      name: "Some Project",
-      id: "ProjectSample",
-      progress: 25,
+      name: "01. Chuẩn bị dự án",
+      start: new Date("2024-08-11T17:00:00.000Z"),
+      end: new Date("2024-08-15T17:00:00.000Z"),
+      id: "36b73c71-6e2f-46b0-8d88-80957e616462",
       type: "project",
       hideChildren: false,
-      displayOrder: 1,
+      progress: 30
     },
     {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
-      end: new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        2,
-        12,
-        28
-      ),
-      name: "Idea",
-      id: "Task 0",
-      progress: 45,
+      name: "Thành lập tổ dự án",
+      start: new Date("2024-08-11T17:00:00.000Z"),
+      end: new Date("2024-08-15T17:00:00.000Z"),
+      id: "65477f52-754b-4802-a501-27f3c20d044f",
+      type: "project",
+      hideChildren: false,
+      progress: 0,
+      project: "36b73c71-6e2f-46b0-8d88-80957e616462"
+    },
+    {
+      name: "Xin quyết định",
+      start: new Date("2024-08-11T17:00:00.000Z"),
+      end: new Date("2024-08-13T17:00:00.000Z"),
+      id: "88407d7b-3f01-4b52-bc8f-6acf32002dfe",
       type: "task",
-      project: "ProjectSample",
-      displayOrder: 2,
+      progress: 0,
+      project: "65477f52-754b-4802-a501-27f3c20d044f"
     },
     {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 2),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 4, 0, 0),
-      name: "Research",
-      id: "Task 1",
-      progress: 25,
-      dependencies: ["Task 0"],
+      name: "Họp tổ dự án",
+      start: new Date("2024-08-13T17:00:00.000Z"),
+      end: new Date("2024-08-15T17:00:00.000Z"),
+      id: "2ea8d626-c9ff-4edb-b04c-d2b12d7b12bf",
       type: "task",
-      project: "ProjectSample",
-      displayOrder: 3,
+      progress: 0,
+      project: "65477f52-754b-4802-a501-27f3c20d044f",
+      dependencies: [
+        "88407d7b-3f01-4b52-bc8f-6acf32002dfe"
+      ]
     },
     {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 4),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 8, 0, 0),
-      name: "Discussion with team",
-      id: "Task 2",
-      progress: 10,
-      dependencies: ["Task 1"],
+      name: "Lập Tờ trình dự án",
+      start: new Date("2024-08-11T17:00:00.000Z"),
+      end: new Date("2024-08-15T17:00:00.000Z"),
+      id: "5f6c6943-c835-4b06-85e6-b1e2ad2fe7b1",
+      type: "project",
+      hideChildren: false,
+      progress: 0,
+      project: "36b73c71-6e2f-46b0-8d88-80957e616462"
+    },
+    {
+      name: "Launch SaaS Product",
+      start: new Date("2024-08-11T17:00:00.000Z"),
+      end: new Date("2024-10-14T17:00:00.000Z"),
+      id: "e35634e0-250f-4601-98d9-21a5c5140868",
+      type: "project",
+      hideChildren: false,
+      progress: 34
+    },
+    {
+      name: "Setup web server",
+      start: new Date("2024-08-11T17:00:00.000Z"),
+      end: new Date("2024-08-19T17:00:00.000Z"),
+      id: "a262ca98-9a32-44a6-94d8-9e123b33d5be",
+      type: "project",
+      hideChildren: false,
+      progress: 42,
+      project: "e35634e0-250f-4601-98d9-21a5c5140868"
+    },
+    {
+      name: "Install Apache",
+      start: new Date("2024-08-11T17:00:00.000Z"),
+      end: new Date("2024-08-13T17:00:00.000Z"),
+      id: "dc44a452-f1e6-456e-8cd7-17467e8e7ffd",
       type: "task",
-      project: "ProjectSample",
-      displayOrder: 4,
+      progress: 50,
+      project: "a262ca98-9a32-44a6-94d8-9e123b33d5be"
     },
     {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 8),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 9, 0, 0),
-      name: "Developing",
-      id: "Task 3",
-      progress: 2,
-      dependencies: ["Task 2"],
+      name: "Configure firewall",
+      start: new Date("2024-08-11T17:00:00.000Z"),
+      end: new Date("2024-08-13T17:00:00.000Z"),
+      id: "b61a1bc0-8246-4a82-9402-f2c0e0a77bb5",
       type: "task",
-      project: "ProjectSample",
-      displayOrder: 5,
+      progress: 50,
+      project: "a262ca98-9a32-44a6-94d8-9e123b33d5be"
     },
     {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 8),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 10),
-      name: "Review",
-      id: "Task 4",
+      name: "Setup load balancer",
+      start: new Date("2024-08-11T17:00:00.000Z"),
+      end: new Date("2024-08-13T17:00:00.000Z"),
+      id: "cc5d902a-0c95-408f-a606-684c4c98bf9d",
+      type: "task",
+      progress: 50,
+      project: "a262ca98-9a32-44a6-94d8-9e123b33d5be"
+    },
+    {
+      name: "Configure ports",
+      start: new Date("2024-08-11T17:00:00.000Z"),
+      end: new Date("2024-08-12T17:00:00.000Z"),
+      id: "e66496f3-3ec1-4922-9f41-3de5248d9571",
+      type: "task",
+      progress: 50,
+      project: "a262ca98-9a32-44a6-94d8-9e123b33d5be"
+    },
+    {
+      name: "Run tests",
+      start: new Date("2024-08-14T17:00:00.000Z"),
+      end: new Date("2024-08-19T17:00:00.000Z"),
+      id: "db7f4fbe-3b5b-4096-84c5-0942d071dddd",
+      type: "task",
+      progress: 0,
+      project: "a262ca98-9a32-44a6-94d8-9e123b33d5be",
+      dependencies: [
+        "cc5d902a-0c95-408f-a606-684c4c98bf9d",
+        "dc44a452-f1e6-456e-8cd7-17467e8e7ffd",
+        "e66496f3-3ec1-4922-9f41-3de5248d9571",
+        "b61a1bc0-8246-4a82-9402-f2c0e0a77bb5"
+      ]
+    },
+    {
+      name: "Website Design",
+      start: new Date("2024-08-19T17:00:00.000Z"),
+      end: new Date("2024-09-09T17:00:00.000Z"),
+      id: "f119ea8c-74f8-4c80-ac74-458aa9575faa",
+      type: "project",
+      hideChildren: false,
+      progress: 38,
+      project: "e35634e0-250f-4601-98d9-21a5c5140868"
+    },
+    {
+      name: "Contact designers",
+      start: new Date("2024-08-19T17:00:00.000Z"),
+      end: new Date("2024-08-25T17:00:00.000Z"),
+      id: "167b3be5-73d2-453f-95cc-1833bce17876",
       type: "task",
       progress: 70,
-      dependencies: ["Task 2"],
-      project: "ProjectSample",
-      displayOrder: 6,
+      project: "f119ea8c-74f8-4c80-ac74-458aa9575faa",
+      dependencies: [
+        "db7f4fbe-3b5b-4096-84c5-0942d071dddd"
+      ]
     },
     {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 15),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 15),
-      name: "Release",
-      id: "Task 6",
-      progress: currentDate.getMonth(),
-      type: "milestone",
-      dependencies: ["Task 4"],
-      project: "ProjectSample",
-      displayOrder: 7,
-    },
-    {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 18),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 19),
-      name: "Party Time",
-      id: "Task 9",
-      progress: 0,
-      isDisabled: true,
+      name: "Create shortlist of three designers",
+      start: new Date("2024-08-25T17:00:00.000Z"),
+      end: new Date("2024-08-26T17:00:00.000Z"),
+      id: "8b93c477-f3a2-4f01-8c4a-f76277691f87",
       type: "task",
+      progress: 60,
+      project: "f119ea8c-74f8-4c80-ac74-458aa9575faa",
+      dependencies: [
+        "167b3be5-73d2-453f-95cc-1833bce17876"
+      ]
     },
-  ];
-  // tasks = [...tasks,...AddNewData(tasks.length)]
+
+  ]
   return tasks;
 }
 

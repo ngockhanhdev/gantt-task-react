@@ -76,6 +76,7 @@ export interface EventOption {
    * Invokes on scroll on task list
    */
   onScrollTask?: ({y}: {y:number}) => void;
+  onZoomTask?: (type: 'zoomIn' | 'zoomOut',event:any) => void;
 }
 
 export interface DisplayOption {

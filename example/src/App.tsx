@@ -1,27 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Task, ViewMode, Gantt } from "gantt-task-react-v2";
 import { ViewSwitcher } from "./components/view-switcher";
 import { getStartEndDateForProject, initTasks } from "./helper";
 import "gantt-task-react-v2/dist/index.css";
+import useSetState from "./useSetState";
 // import AppTest from "./components/VirtualizedList";
 // import AppTest2 from "./components/VirtualizedList2";
 
 // Init
+const listMode: ViewMode[] = [ViewMode.Hour, ViewMode.QuarterDay, ViewMode.HalfDay, ViewMode.Day,
+  ViewMode.Week, ViewMode.Month, ViewMode.QuarterYear, ViewMode.Year];
 const App = () => {
+  const [state, setState] = useSetState<any>({
+    view: ViewMode.Day,
+  });
 
-  const [view, setView] = useState<ViewMode>(ViewMode.Day);
-  const [tasks, setTasks] = useState<Task[]>(initTasks());
+  const stateRef = useRef<any>({
+    zoomIndex: 3,
+  });
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [isChecked, setIsChecked] = useState(true);
   const [ganttHeight, setGanttHeight] = useState(200);
   const [scrollX, setScrollX] = useState(0);
   const [scrollY, setScrollY] = useState(0);
+
+
   let columnWidth = 65;
   let rowHeight = 50;
-  if (view === ViewMode.Year) {
+  if (state.view === ViewMode.Year) {
     columnWidth = 350;
-  } else if (view === ViewMode.Month) {
+  } else if (state.view === ViewMode.Month) {
     columnWidth = 300;
-  } else if (view === ViewMode.Week) {
+  } else if (state.view === ViewMode.Week) {
     columnWidth = 250;
   }
 
@@ -77,7 +87,8 @@ const App = () => {
   };
 
   useEffect(() => {
-    setGanttHeight(200);
+    setGanttHeight(300);
+    setTasks(initTasks());
     // const editorEl: any = document.getElementById(`h-editor`);
     // const initSetting = (editorWidth: number, editorHeight: number) => {
     //   console.log("editorWidth", editorWidth);
@@ -100,14 +111,34 @@ const App = () => {
     // };
   }, []);
 
-  const onScrollTask = (x: number, y: number) => {
-    if (x !== scrollX) {
-      setScrollX(x)
+  // const onScrollTask = ({ y }: any) => {
+  //   if (y != scrollY) {
+  //     console.log("onScrollTask");
+  //     setScrollY(y);
+  //   }
+  // };
+
+  const onZoomTask = (type: "zoomIn" | "zoomOut") => {
+    if (type === "zoomIn" && stateRef.current.zoomIndex > 0) {
+      let newZoom: number = stateRef.current.zoomIndex - 1;
+      stateRef.current.zoomIndex = newZoom;
+      setState({
+        view: listMode[newZoom],
+      });
+      console.log(type, newZoom);
     }
-    if (y !== scrollY) {
-      setScrollY(y);
+
+    if (type === "zoomOut" && stateRef.current.zoomIndex < listMode.length - 1) {
+      console.log("listMode.length", listMode.length);
+      console.log("stateRef.current.zoomIndex", stateRef.current.zoomIndex);
+      let newZoom: number = stateRef.current.zoomIndex + 1;
+      stateRef.current.zoomIndex = newZoom;
+      setState({
+        view: listMode[newZoom],
+      });
+      console.log(type, newZoom);
     }
-  }
+  };
   let configColor: any = {
     // #83b5fe
     barCornerRadius: 3,
@@ -130,7 +161,11 @@ const App = () => {
   return (
     <div className="Wrapper">
       <ViewSwitcher
-        onViewModeChange={viewMode => setView(viewMode)}
+        onViewModeChange={viewMode => {
+          setState({
+            view: viewMode,
+          });
+        }}
         onViewListChange={setIsChecked}
         isChecked={isChecked}
       />
@@ -144,7 +179,10 @@ const App = () => {
         <input type="text" value={scrollX} onChange={(event: any) => setScrollX(event.target.value)} />
       </div>
       <div> scrollY :
-        <input type="text" value={scrollY} onChange={(event: any) => setScrollY(event.target.value)} />
+        <input type="number" value={scrollY} onChange={(event: any) => setScrollY(Number(event.target.value))} />
+      </div>
+      <div>
+        view : {state.view}
       </div>
       <div
         id={"h-editor"}
@@ -152,27 +190,31 @@ const App = () => {
           maxHeight: "calc(100vh - 140px)",
         }}
       >
+        {
+          tasks?.length > 0 &&
+          <Gantt
+            {...configColor}
+            defaultScrollX={scrollX}
+            defaultScrollY={scrollY}
+            // onScrollTask={onScrollTask}
+            tasks={tasks}
+            viewMode={state.view}
+            onDateChange={handleTaskChange}
+            onDelete={handleTaskDelete}
+            onProgressChange={handleProgressChange}
+            onDoubleClick={handleDblClick}
+            onClick={handleClick}
+            onSelect={handleSelect}
+            onExpanderClick={handleExpanderClick}
+            listCellWidth={isChecked ? "155px" : ""}
+            ganttHeight={ganttHeight}
+            rowHeight={rowHeight}
+            columnWidth={columnWidth}
+            onZoomTask={onZoomTask}
+            // ItemGanttContent={ItemGanttContent}
+          />
+        }
 
-        <Gantt
-          {...configColor}
-          defaultScrollX={scrollX}
-          defaultScrollY={scrollY}
-          onScrollTask={onScrollTask}
-          tasks={tasks}
-          viewMode={view}
-          onDateChange={handleTaskChange}
-          onDelete={handleTaskDelete}
-          onProgressChange={handleProgressChange}
-          onDoubleClick={handleDblClick}
-          onClick={handleClick}
-          onSelect={handleSelect}
-          onExpanderClick={handleExpanderClick}
-          listCellWidth={isChecked ? "155px" : ""}
-          ganttHeight={ganttHeight}
-          rowHeight={rowHeight}
-          columnWidth={columnWidth}
-          // ItemGanttContent={ItemGanttContent}
-        />
       </div>
 
     </div>
