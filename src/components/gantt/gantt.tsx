@@ -314,7 +314,7 @@ export const Gantt: React.FC<GanttProps> = ({
   };
 
 
-  const handleScroll = debounce((scrollYPosition: number) => {
+  const handleScroll = (scrollYPosition: number) => {
     let listTask: Task[] = handleRemoveHiddenTask(tasks);
     let { newItems, newOffsetY } = getDataScroll(listTask, scrollYPosition || 0);
     if (newOffsetY != state.offsetY) {
@@ -325,7 +325,7 @@ export const Gantt: React.FC<GanttProps> = ({
         dateSetup: dataSetup,
       });
     }
-  }, 0);
+  }
 
   const handleScrollTask = debounce((scrollYPosition: number) => {
     if (onScrollTask && Math.abs(defaultScrollY - scrollYPosition) > 1) {
@@ -333,7 +333,7 @@ export const Gantt: React.FC<GanttProps> = ({
         y: state.scrollY,
       });
     }
-  }, 200);
+  }, 10);
   // useEffect(() => {
   //   if (ganttHeight && ganttHeight < ganttFullHeight) {
   //     handleScroll();
