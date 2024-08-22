@@ -1,6 +1,6 @@
 {
   "name": "gantt-task-react-v2",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Interactive Gantt Chart for React with TypeScript.",
   "author": "khanhdn",
   "homepage": "https://github.com/ngockhanhdev/gantt-task-react",
