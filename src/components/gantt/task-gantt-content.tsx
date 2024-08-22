@@ -128,7 +128,10 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
       const cursor = point.matrixTransform(
         svg?.current.getScreenCTM()?.inverse(),
       );
-
+      // console.log("handleMouseMove");
+      // console.log("event",event);
+      // console.log("point",point);
+      // console.log("cursor",cursor);
       const { isChanged, changedTask } = handleTaskBySVGMouseEvent(
         cursor.x,
         ganttEvent.action as BarMoveAction,
@@ -154,6 +157,10 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
       const cursor = point.matrixTransform(
         svg?.current.getScreenCTM()?.inverse(),
       );
+      // console.log("handleMouseUp");
+      // console.log("event",event);
+      // console.log("point",point);
+      // console.log("cursor",cursor);
       const { changedTask: newChangedTask } = handleTaskBySVGMouseEvent(
         cursor.x,
         action as BarMoveAction,

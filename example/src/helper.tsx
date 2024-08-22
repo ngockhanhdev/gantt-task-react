@@ -40,11 +40,49 @@ export function initTasks() {
       project: "36b73c71-6e2f-46b0-8d88-80957e616462"
     },
     {
+      name: "Xin quyết định schedules",
+      start: new Date("2024-08-15T17:00:00.000Z"),
+      end: new Date("2024-08-23T17:00:00.000Z"),
+      id: "88407d7b-3f01-4b52-bc8f-6acf32002dfe",
+      type: "schedules",
+      hideChildren: true,
+      progress: 0,
+      project: "65477f52-754b-4802-a501-27f3c20d044f"
+    },
+    {
+      name: "Xin quyết định 2",
+      start: new Date("2024-08-15T17:00:00.000Z"),
+      end: new Date("2024-08-18T17:00:00.000Z"),
+      id: "88407d7b-3f01-4b52-bc8f-6acf32002df2",
+      type: "task",
+      progress: 0,
+      project: "88407d7b-3f01-4b52-bc8f-6acf32002dfe"
+    },
+    {
+      name: "Xin quyết định 3",
+      start: new Date("2024-08-19T17:00:00.000Z"),
+      end: new Date("2024-08-21T17:00:00.000Z"),
+      id: "88407d7b-3f01-4b52-bc8f-6acf32002df3",
+      type: "task",
+      progress: 0,
+      project: "88407d7b-3f01-4b52-bc8f-6acf32002dfe"
+    },
+    {
+      name: "Xin quyết định 4",
+      start: new Date("2024-08-22T17:00:00.000Z"),
+      end: new Date("2024-08-23T17:00:00.000Z"),
+      id: "88407d7b-3f01-4b52-bc8f-6acf32002df4",
+      type: "task",
+      progress: 0,
+      project: "88407d7b-3f01-4b52-bc8f-6acf32002dfe"
+    },
+    {
       name: "Xin quyết định",
       start: new Date("2024-08-11T17:00:00.000Z"),
       end: new Date("2024-08-13T17:00:00.000Z"),
-      id: "88407d7b-3f01-4b52-bc8f-6acf32002dfe",
+      id: "88407d7b-3f01-4b52-bc8f-6acf32002df0",
       type: "task",
+      hideChildren: true,
       progress: 0,
       project: "65477f52-754b-4802-a501-27f3c20d044f"
     },
@@ -57,7 +95,7 @@ export function initTasks() {
       progress: 0,
       project: "65477f52-754b-4802-a501-27f3c20d044f",
       dependencies: [
-        "88407d7b-3f01-4b52-bc8f-6acf32002dfe"
+        "88407d7b-3f01-4b52-bc8f-6acf32002df0"
       ]
     },
     {
@@ -178,6 +216,54 @@ export function initTasks() {
   ]
   return tasks;
 }
+export function initTasks2() {
+  let tasks: any[] = [
+    {
+      name: "01. Chuẩn bị dự án",
+      start: new Date("2024-08-11T17:00:00.000Z"),
+      end: new Date("2024-08-15T17:00:00.000Z"),
+      id: "36b73c71-6e2f-46b0-8d88-80957e616462",
+      type: "task",
+      hideChildren: false,
+      progress: 30
+    },
+    {
+      name: "Thành lập tổ dự án",
+      start: new Date("2024-08-11T17:00:00.000Z"),
+      end: new Date("2024-08-15T17:00:00.000Z"),
+      id: "65477f52-754b-4802-a501-27f3c20d044f",
+      type: "task",
+      hideChildren: false,
+      progress: 0,
+    },
+    {
+      name: "Xin quyết định",
+      start: new Date("2024-08-11T17:00:00.000Z"),
+      end: new Date("2024-08-13T17:00:00.000Z"),
+      id: "88407d7b-3f01-4b52-bc8f-6acf32002dfe",
+      type: "task",
+      progress: 0,
+    },
+    {
+      name: "Họp tổ dự án",
+      start: new Date("2024-08-13T17:00:00.000Z"),
+      end: new Date("2024-08-15T17:00:00.000Z"),
+      id: "2ea8d626-c9ff-4edb-b04c-d2b12d7b12bf",
+      type: "task",
+      progress: 0,
+    },
+    {
+      name: "Họp tổ dự án2",
+      start: new Date("2024-08-13T17:00:00.000Z"),
+      end: new Date("2024-08-15T17:00:00.000Z"),
+      id: "2ea8d626-c9ff-4edb-b04c-d2b12d7b12dd",
+      type: "task",
+      progress: 0,
+    },
+
+  ]
+  return tasks;
+}
 
 export function getStartEndDateForProject(tasks: Task[], projectId: string) {
   const projectTasks = tasks.filter(t => t.project === projectId);
@@ -196,4 +282,85 @@ export function getStartEndDateForProject(tasks: Task[], projectId: string) {
   return [start, end];
 }
 
+export function getLine() {
+  const data : any = [
+    { year: '1991', value: 3, count: 10 },
+    { year: '1992', value: 4, count: 4 },
+    { year: '1993', value: 3.5, count: 5 },
+    { year: '1994', value: 5, count: 5 },
+    { year: '1995', value: 4.9, count: 4.9 },
+    { year: '1996', value: 6, count: 35 },
+    { year: '1997', value: 7, count: 7 },
+    { year: '1998', value: 9, count: 1 },
+    { year: '1999', value: 13, count: 20 },
+  ];
 
+  const svgWidth : number = 600;
+  const svgHeight: number = 400;
+  const margin: number = 50;
+
+  const maxValue: number = Math.max(...data.map((d:any) => Math.max(d.value, d.count)));
+  const xScale: number = (svgWidth - 2 * margin) / (data.length - 1);
+  const yScale: number = (svgHeight - 2 * margin) / maxValue;
+
+  // function createPath(dataPoints:any, accessor: any) {
+  //   return dataPoints.map((point:any, index:any) => {
+  //     const x = margin + index * xScale;
+  //     const y = svgHeight - margin - accessor(point) * yScale;
+  //     const command = index === 0 ? 'M' : 'L';
+  //     return `${command}${x},${y}`;
+  //   }).join(' ');
+  // }
+
+  function createSmoothPath(dataPoints:any, accessor:any) {
+    return dataPoints.map((point:any, index:any, array:any) => {
+      const x = margin + index * xScale;
+      const y = svgHeight - margin - accessor(point) * yScale;
+
+      if (index === 0) {
+        return `M${x},${y}`;
+      } else {
+        const prevX = margin + (index - 1) * xScale;
+        const prevY = svgHeight - margin - accessor(array[index - 1]) * yScale;
+
+        const midX = (prevX + x) / 2;
+        const midY = (prevY + y) / 2;
+
+        return `Q${prevX},${prevY} ${midX},${midY}`;
+      }
+    }).join(' ');
+  }
+
+  const svg: any = document.getElementById('chart');
+
+  // Vẽ đường cho giá trị "value"
+  const valuePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  valuePath.setAttribute('d', createSmoothPath(data, (d:any) => d.value));
+  valuePath.setAttribute('stroke', 'blue');
+  valuePath.setAttribute('fill', 'transparent');
+  svg.appendChild(valuePath);
+
+  // Vẽ đường cho giá trị "count"
+  const countPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  countPath.setAttribute('d', createSmoothPath(data, (d:any) => d.count));
+  countPath.setAttribute('stroke', 'red');
+  countPath.setAttribute('fill', 'transparent');
+  svg.appendChild(countPath);
+
+  // Vẽ các trục
+  const axisX = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  axisX.setAttribute('x1', String(margin));
+  axisX.setAttribute('y1', String(svgHeight - margin));
+  axisX.setAttribute('x2', String(svgWidth - margin));
+  axisX.setAttribute('y2', String(svgHeight - margin));
+  axisX.setAttribute('stroke', 'black');
+  // svg.appendChild(axisX);
+
+  const axisY = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  axisY.setAttribute('x1', String(margin));
+  axisY.setAttribute('y1', String(margin));
+  axisY.setAttribute('x2', String(margin));
+  axisY.setAttribute('y2', String(svgHeight - margin));
+  axisY.setAttribute('stroke', 'black');
+  // svg.appendChild(axisY);
+}

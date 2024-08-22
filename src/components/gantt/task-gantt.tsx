@@ -47,6 +47,7 @@ export const TaskGantt: React.FC<TaskGanttProps> = ({
     }
   }, [scrollX]);
 
+
   return (
     <div
       className={styles.ganttVerticalContainer}

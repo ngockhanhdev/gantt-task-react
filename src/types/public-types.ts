@@ -9,7 +9,7 @@ export enum ViewMode {
   QuarterYear = "QuarterYear",
   Year = "Year",
 }
-export type TaskType = "task" | "milestone" | "project";
+export type TaskType = "task" | "milestone" | "project" | "schedules";
 export interface Task {
   id: string;
   type: TaskType;
@@ -29,6 +29,7 @@ export interface Task {
   isDisabled?: boolean;
   project?: string;
   dependencies?: string[];
+  schedules?: string[];
   hideChildren?: boolean;
   displayOrder?: number;
 }

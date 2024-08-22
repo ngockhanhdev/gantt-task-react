@@ -173,6 +173,7 @@ export const Gantt: React.FC<GanttProps> = ({
         projectBackgroundSelectedColor,
         milestoneBackgroundColor,
         milestoneBackgroundSelectedColor,
+        tasks
       ),
     };
   };
@@ -535,7 +536,7 @@ export const Gantt: React.FC<GanttProps> = ({
 
   const setGanttEvent = (eventGantt: any) => {
     const { changedTask, action } = eventGantt;
-    // console.log("eventGantt", eventGantt);
+    console.log("eventGantt", eventGantt);
     setState({
       ganttEvent: eventGantt,
     });
@@ -562,13 +563,83 @@ export const Gantt: React.FC<GanttProps> = ({
           const newTaskVisibleList = state.visibleItems.map(t =>
             t.id === changedTask.id ? changedTask : t,
           );
+          console.log("newTaskVisibleList",action,newTaskVisibleList);
           setState({
             visibleItems: newTaskVisibleList,
           });
         }
+        // schedules change
+        else if (changedTask?.project) {
+          const stateProject = state.visibleItems.find(t => t.id === changedTask.project);
+
+          if (stateProject?.type === 'schedules' &&
+            stateProject?.scheduleChildren &&
+            stateProject?.scheduleChildren?.length > 0) {
+            const prevStateTask = stateProject.scheduleChildren.find(t => t.id === changedTask.id);
+
+            if (
+              prevStateTask &&
+              (prevStateTask.start.getTime() !== changedTask.start.getTime() ||
+                prevStateTask.end.getTime() !== changedTask.end.getTime() ||
+                prevStateTask.progress !== changedTask.progress)
+            ) {
+              let newScheduleChildren = stateProject.scheduleChildren.map(t =>
+                t.id === changedTask.id ? changedTask : t,
+              );
+              // actions for change
+              const newTaskVisibleList = state.visibleItems.map(t =>
+                t.id === stateProject.id ? {
+                ...t,
+                  scheduleChildren: newScheduleChildren,
+                } : t,
+              );
+              setState({
+                visibleItems: newTaskVisibleList,
+              });
+            }
+          }
+        }
       }
     }
   };
+
+  // const setGanttEventGrid = async (
+  //   action: GanttContentMoveAction,
+  //   task: Task,
+  //   event?: React.MouseEvent | React.KeyboardEvent,
+  // ) => {
+  //   if (!event) {
+  //     if (action === "select") {
+  //       // setSelectedTask(task.id);
+  //     }
+  //   }
+  //   // Keyboard events
+  //   // else if (isKeyboardEvent(event)) {
+  //   //   if (action === "delete") {
+  //   //     if (onDelete) {
+  //   //       try {
+  //   //         const result = await onDelete(task);
+  //   //         if (result !== undefined && result) {
+  //   //           setGanttEvent({ action, changedTask: task });
+  //   //         }
+  //   //       } catch (error) {
+  //   //         console.error("Error on Delete. " + error);
+  //   //       }
+  //   //     }
+  //   //   }
+  //   // }
+  //   // Mouse Events
+  //   else if (action === "mouseenter") {
+  //     // console.log(action,task);
+  //     // if (!ganttEvent.action) {
+  //     //   setGanttEvent({
+  //     //     action,
+  //     //     changedTask: task,
+  //     //     originalSelectedTask: task,
+  //     //   });
+  //     // }
+  //   }
+  // };
 
   const setFailedTask = (value: any) => {
     if (value) {
@@ -582,14 +653,15 @@ export const Gantt: React.FC<GanttProps> = ({
   const gridProps: GridProps = {
     columnWidth,
     svgWidth,
-    // tasks: tasks,
-    tasks: state.visibleItems || [],
+    tasks: tasks,
+    // tasks: state.visibleItems || [],
     rowHeight,
     ganttFullHeight,
     dates: state.dateSetup.dates,
     todayColor,
     rtl,
     offsetY: state.offsetY,
+    // onEventGridStart : setGanttEventGrid
   };
   const calendarProps: CalendarProps = {
     dateSetup: state.dateSetup,

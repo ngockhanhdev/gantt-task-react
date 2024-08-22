@@ -7,6 +7,7 @@ import { Milestone } from "./milestone/milestone";
 import { Project } from "./project/project";
 import style from "./task-list.module.css";
 import { Task } from "../../types/public-types";
+import { ScheduleItem } from "./Schedules/ScheduleItem";
 
 export type TaskItemProps = {
   task: BarTask;
@@ -20,7 +21,7 @@ export type TaskItemProps = {
   onEventStart: (
     action: GanttContentMoveAction,
     selectedTask: BarTask,
-    event?: React.MouseEvent | React.KeyboardEvent
+    event?: React.MouseEvent | React.KeyboardEvent,
   ) => any;
   ItemGanttContent?: React.FC<{
     rowHeight?: number;
@@ -31,6 +32,7 @@ export type TaskItemProps = {
   }>;
 };
 
+// @ts-ignore
 export const TaskItem: React.FC<TaskItemProps> = props => {
   const {
     task,
@@ -55,6 +57,9 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
         setTaskItem(<Milestone {...props} />);
         break;
       case "project":
+        setTaskItem(<Project {...props} />);
+        break;
+      case "schedules":
         setTaskItem(<Project {...props} />);
         break;
       case "smalltask":
@@ -90,6 +95,21 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
     }
   };
   // console.log("TaskItem",ItemGanttContent);
+  if (task.typeInternal == "schedules" && task.hideChildren) {
+    return (
+      task?.scheduleChildren && task?.scheduleChildren?.length > 0 ?
+        task?.scheduleChildren?.map((t: any) => {
+          return <ScheduleItem
+            {...props}
+            task={t}
+            key={t.id}
+            // isProgressChangeable={false}
+            // isDateChangeable={false}
+            // isDelete={false}
+          ></ScheduleItem>
+        }) : <g></g>
+    )
+  }
   return (
     <g
       onKeyDown={e => {
@@ -117,33 +137,32 @@ export const TaskItem: React.FC<TaskItemProps> = props => {
         onEventStart("select", task);
       }}
     >
+
       {taskItem}
       {
-        !!ItemGanttContent ?
-          <foreignObject x={task.x1 + 10}
-                         y={task.y + taskHeight * 0.5}
-                         height={taskHeight}
-                         width={task.x2 - task.x1 - 20}
-          >
-            {
-              <ItemGanttContent task={task} rowHeight={taskHeight}></ItemGanttContent>
-            }
-          </foreignObject>
-          :
-          <text
-            x={getX()}
-            y={task.y + taskHeight * 0.5}
-            className={
-              isTextInside
-                ? style.barLabel
-                : style.barLabel && style.barLabelOutside
-            }
-            ref={textRef}
-          >
-            {task.name}
-          </text>
+          !!ItemGanttContent ?
+            <foreignObject x={task.x1 + 10}
+                           y={task.y + taskHeight * 0.5}
+                           height={taskHeight}
+                           width={task.x2 - task.x1 - 20}
+            >
+              {
+                <ItemGanttContent task={task} rowHeight={taskHeight}></ItemGanttContent>
+              }
+            </foreignObject>
+            : <text
+              x={getX()}
+              y={task.y + taskHeight * 0.5}
+              className={
+                isTextInside
+                  ? style.barLabel
+                  : style.barLabel && style.barLabelOutside
+              }
+              ref={textRef}
+            >
+              {task.name}
+            </text>
       }
-
 
     </g>
   );

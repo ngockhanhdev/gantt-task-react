@@ -2,6 +2,7 @@ import React, { ReactChild } from "react";
 import { Task } from "../../types/public-types";
 import { addToDate } from "../../helpers/date-helper";
 import styles from "./grid.module.css";
+import { GanttContentMoveAction } from "../../types/gantt-task-actions";
 
 export type GridBodyProps = {
   tasks: Task[];
@@ -13,6 +14,11 @@ export type GridBodyProps = {
   todayColor: string;
   rtl: boolean;
   offsetY?: number;
+  onEventGridStart?: (
+    action: GanttContentMoveAction,
+    selectedTask: Task,
+    event?: React.MouseEvent | React.KeyboardEvent
+  ) => any;
 };
 export const GridBody: React.FC<GridBodyProps> = ({
                                                     tasks,
@@ -22,7 +28,7 @@ export const GridBody: React.FC<GridBodyProps> = ({
                                                     columnWidth,
                                                     todayColor,
                                                     rtl,
-                                                    // offsetY,
+                                                    // onEventGridStart,
                                                   }) => {
   let y = 0;
   const gridRows: ReactChild[] = [];
@@ -45,6 +51,9 @@ export const GridBody: React.FC<GridBodyProps> = ({
         width={svgWidth}
         height={rowHeight}
         className={styles.gridRow}
+        // onMouseEnter={e => {
+        //   onEventGridStart("mouseenter", task, e);
+        // }}
       />,
     );
     rowLines.push(

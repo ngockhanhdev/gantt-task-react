@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Task, ViewMode, Gantt } from "gantt-task-react-v2";
 import { ViewSwitcher } from "./components/view-switcher";
-import { getStartEndDateForProject, initTasks } from "./helper";
+import {
+  // getLine,
+  getStartEndDateForProject,
+  initTasks, initTasks2,
+} from "./helper";
 import "gantt-task-react-v2/dist/index.css";
 import useSetState from "./useSetState";
 // import AppTest from "./components/VirtualizedList";
@@ -13,6 +17,7 @@ const listMode: ViewMode[] = [ViewMode.Hour, ViewMode.QuarterDay, ViewMode.HalfD
 const App = () => {
   const [state, setState] = useSetState<any>({
     view: ViewMode.Day,
+    modeGantt: "normal",
   });
 
   const stateRef = useRef<any>({
@@ -36,7 +41,7 @@ const App = () => {
   }
 
   const handleTaskChange = (task: Task) => {
-    console.log("On date change Id:" + task.id);
+    console.log("On date change Id:" + task.id, task);
     let newTasks = tasks.map(t => (t.id === task.id ? task : t));
     if (task.project) {
       const [start, end] = getStartEndDateForProject(newTasks, task.project);
@@ -86,9 +91,16 @@ const App = () => {
     console.log("On expander tasks:", newTask);
   };
 
+
   useEffect(() => {
     setGanttHeight(300);
-    setTasks(initTasks());
+    if (state.modeGantt === "normal") {
+      setTasks(initTasks());
+    }
+    if (state.modeGantt === "normal2") {
+      setTasks(initTasks2());
+    }
+    // getLine()
     // const editorEl: any = document.getElementById(`h-editor`);
     // const initSetting = (editorWidth: number, editorHeight: number) => {
     //   console.log("editorWidth", editorWidth);
@@ -139,6 +151,7 @@ const App = () => {
       console.log(type, newZoom);
     }
   };
+
   let configColor: any = {
     // #83b5fe
     barCornerRadius: 3,
@@ -181,6 +194,19 @@ const App = () => {
       <div> scrollY :
         <input type="number" value={scrollY} onChange={(event: any) => setScrollY(Number(event.target.value))} />
       </div>
+      {/*<div> Mode gantt:*/}
+      {/*  <input type="text" value={state.modeGantt} onChange={(event: any) => {*/}
+      {/*    setState({*/}
+      {/*      modeGantt: event.target.value,*/}
+      {/*    });*/}
+      {/*    if (event.target.value === "normal") {*/}
+      {/*      setTasks(initTasks());*/}
+      {/*    }*/}
+      {/*    if (event.target.value === "normal2") {*/}
+      {/*      setTasks(initTasks2());*/}
+      {/*    }*/}
+      {/*  }} />*/}
+      {/*</div>*/}
       <div>
         view : {state.view}
       </div>
@@ -191,7 +217,7 @@ const App = () => {
         }}
       >
         {
-          tasks?.length > 0 &&
+          tasks?.length > 0 && state.modeGantt === "normal" &&
           <Gantt
             {...configColor}
             defaultScrollX={scrollX}
@@ -214,7 +240,6 @@ const App = () => {
             // ItemGanttContent={ItemGanttContent}
           />
         }
-
       </div>
 
     </div>
