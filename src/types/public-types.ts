@@ -97,6 +97,8 @@ export interface StylingOption {
   listCellWidth?: string;
   rowHeight?: number;
   ganttHeight?: number;
+  maxHeight?: string | number; // css , px ...
+  scrollLoadData?: boolean
   barCornerRadius?: number;
   handleWidth?: number;
   fontFamily?: string;

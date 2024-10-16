@@ -16,8 +16,8 @@ const listMode: ViewMode[] = [ViewMode.Hour, ViewMode.QuarterDay, ViewMode.HalfD
   ViewMode.Week, ViewMode.Month, ViewMode.QuarterYear, ViewMode.Year];
 const App = () => {
   const [state, setState] = useSetState<any>({
-    view: ViewMode.Day,
-    modeGantt: "normal",
+    view: ViewMode.Month,
+    modeGantt: "normal2",
   });
 
   const stateRef = useRef<any>({
@@ -25,7 +25,7 @@ const App = () => {
   });
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isChecked, setIsChecked] = useState(true);
-  const [ganttHeight, setGanttHeight] = useState(200);
+  // const [ganttHeight, setGanttHeight] = useState(200);
   const [scrollX, setScrollX] = useState(0);
   const [scrollY, setScrollY] = useState(0);
 
@@ -93,12 +93,14 @@ const App = () => {
 
 
   useEffect(() => {
-    setGanttHeight(300);
+    // setGanttHeight(300);
+    let arr = initTasks2()
+    console.log('initTasks2',arr);
     if (state.modeGantt === "normal") {
       setTasks(initTasks());
     }
     if (state.modeGantt === "normal2") {
-      setTasks(initTasks2());
+      setTasks(arr);
     }
     // getLine()
     // const editorEl: any = document.getElementById(`h-editor`);
@@ -123,12 +125,12 @@ const App = () => {
     // };
   }, []);
 
-  // const onScrollTask = ({ y }: any) => {
-  //   if (y != scrollY) {
-  //     console.log("onScrollTask");
-  //     setScrollY(y);
-  //   }
-  // };
+  const onScrollTask = ({ y }: any) => {
+    if (y != scrollY) {
+      console.log("onScrollTask");
+      setScrollY(y);
+    }
+  };
 
   const onZoomTask = (type: "zoomIn" | "zoomOut") => {
     if (type === "zoomIn" && stateRef.current.zoomIndex > 0) {
@@ -217,14 +219,15 @@ const App = () => {
         }}
       >
         {
-          tasks?.length > 0 && state.modeGantt === "normal" &&
+          tasks?.length > 0 &&
           <Gantt
             {...configColor}
             defaultScrollX={scrollX}
             defaultScrollY={scrollY}
-            // onScrollTask={onScrollTask}
+            onScrollTask={onScrollTask}
             tasks={tasks}
             viewMode={state.view}
+            viewDate={new Date()}
             onDateChange={handleTaskChange}
             onDelete={handleTaskDelete}
             onProgressChange={handleProgressChange}
@@ -233,7 +236,9 @@ const App = () => {
             onSelect={handleSelect}
             onExpanderClick={handleExpanderClick}
             listCellWidth={isChecked ? "155px" : ""}
-            ganttHeight={ganttHeight}
+            maxHeight={'500px'}
+            // scrollLoadData={true}
+            // ganttHeight={ganttHeight}
             rowHeight={rowHeight}
             columnWidth={columnWidth}
             onZoomTask={onZoomTask}
