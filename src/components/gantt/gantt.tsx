@@ -23,6 +23,7 @@ import { HorizontalScroll } from "../other/horizontal-scroll";
 import { debounce, removeHiddenTasks, sortTasks } from "../../helpers/other-helper";
 import styles from "./gantt.module.css";
 import useSetState from "../../helpers/useSetState";
+import { CalendarGant } from "./calendar-gantt";
 
 export const Gantt: React.FC<GanttProps> = ({
                                               tasks,
@@ -126,7 +127,7 @@ export const Gantt: React.FC<GanttProps> = ({
   );
 
   const svgWidth = state.dateSetup.dates.length * columnWidth;
-  const ganttFullHeight = (state.barTasks.length - 1) * rowHeight;
+  const ganttFullHeight = state.barTasks.length * rowHeight;
 
   const ignoreScrollEvent = useRef<boolean>(false);
   // task change events
@@ -767,9 +768,19 @@ export const Gantt: React.FC<GanttProps> = ({
   const ItemRenderGanttContent: React.JSXElementConstructor<any> = React.memo((propsGantt: any) => {
     return !!ItemGanttContent && propsGantt ? <ItemGanttContent {...propsGantt}></ItemGanttContent> : undefined;
   });
+
   return (
     <div>
-      {state.scrollX}
+      { state.scrollY >= 50 && !listCellWidth &&
+        <CalendarGant
+          gridProps={gridProps}
+          calendarProps={calendarProps}
+          barProps={barProps}
+          ganttHeight={ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight}
+          scrollY={state.scrollY}
+          scrollX={state.scrollX}
+        ></CalendarGant>
+      }
       <div
         style={{
           maxHeight: maxHeight || "100%",
@@ -779,6 +790,7 @@ export const Gantt: React.FC<GanttProps> = ({
         onScroll={handleScrollY}
 
       >
+
         <div
           className={styles.wrapper}
           onKeyDown={handleKeyDown}

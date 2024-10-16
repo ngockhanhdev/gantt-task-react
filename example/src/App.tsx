@@ -24,7 +24,7 @@ const App = () => {
     zoomIndex: 3,
   });
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [isChecked, setIsChecked] = useState(true);
+  const [isChecked, setIsChecked] = useState(false);
   // const [ganttHeight, setGanttHeight] = useState(200);
   const [scrollX, setScrollX] = useState(0);
   const [scrollY, setScrollY] = useState(0);
