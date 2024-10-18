@@ -3,6 +3,7 @@ import React, {
   useRef,
   useEffect,
   useMemo,
+forwardRef, useImperativeHandle
 } from "react";
 import { ViewMode, GanttProps, Task } from "../../types/public-types";
 import { GridProps } from "../grid/grid";
@@ -23,9 +24,13 @@ import { HorizontalScroll } from "../other/horizontal-scroll";
 import { debounce, removeHiddenTasks, sortTasks } from "../../helpers/other-helper";
 import styles from "./gantt.module.css";
 import useSetState from "../../helpers/useSetState";
-import { CalendarGant } from "./calendar-gantt";
+// import { CalendarGant } from "./calendar-gantt";
 
-export const Gantt: React.FC<GanttProps> = ({
+const debounceTime: number = 0;
+const TaskTableDefault: React.FC<any> = () => {
+  return <div></div>;
+};
+export const Gantt: React.FC<GanttProps> = forwardRef(({
                                               tasks,
                                               headerHeight = 50,
                                               columnWidth = 60,
@@ -61,6 +66,7 @@ export const Gantt: React.FC<GanttProps> = ({
                                               TooltipContent = StandardTooltipContent,
                                               TaskListHeader = TaskListHeaderDefault,
                                               TaskListTable = TaskListTableDefault,
+                                              TaskTable = TaskTableDefault,
                                               ItemGanttContent,
                                               onDateChange,
                                               onProgressChange,
@@ -72,7 +78,8 @@ export const Gantt: React.FC<GanttProps> = ({
                                               defaultScrollY = 0,
                                               onScrollTask,
                                               onZoomTask,
-                                            }) => {
+                                              widthTable= 0
+                                            }, ref) => {
 
   const getDateSetup = () => {
     const [startDate, endDate] = ganttDateRange(tasks, viewMode, preStepsCount);
@@ -115,7 +122,7 @@ export const Gantt: React.FC<GanttProps> = ({
   });
   const wrapperRef = useRef<HTMLDivElement>(null);
   const taskListRef = useRef<HTMLDivElement>(null);
-  const countScroll = useRef(0)
+  const countScroll = useRef(0);
   // const [dateSetup, setDateSetup] = useState<DateSetup>(() => {
   //   const [startDate, endDate] = ganttDateRange(tasks, viewMode, preStepsCount);
   //   return { viewMode, dates: seedDates(startDate, endDate, viewMode) };
@@ -127,7 +134,7 @@ export const Gantt: React.FC<GanttProps> = ({
   );
 
   const svgWidth = state.dateSetup.dates.length * columnWidth;
-  const ganttFullHeight = state.barTasks.length * rowHeight;
+  const ganttFullHeight = !listCellWidth ? (state.barTasks.length * rowHeight) - (headerHeight || 0) : state.barTasks.length * rowHeight;
 
   const ignoreScrollEvent = useRef<boolean>(false);
   // task change events
@@ -220,19 +227,23 @@ export const Gantt: React.FC<GanttProps> = ({
     });
   }, [state.barTasks, ganttFullHeight]);
 
-  useEffect(() => {
-    if (defaultScrollY !== state.scrollY && Math.abs(defaultScrollY - state.scrollY) > 1) {
+  const onChangeDefaultScrollY = (value:number) => {
+    if (value !== state.scrollY && Math.abs(value - state.scrollY) > 1) {
       setState({
-        scrollY: defaultScrollY,
+        scrollY: value,
       });
       if (ganttHeight && ganttHeight < ganttFullHeight && scrollLoadData) {
-        handleScroll(defaultScrollY);
+        handleScroll(value);
       } else {
         if (wrapperRef.current) {
-          wrapperRef.current.scrollTop = defaultScrollY;
+          wrapperRef.current.scrollTop = value;
         }
       }
     }
+  }
+
+  useEffect(() => {
+    onChangeDefaultScrollY(defaultScrollY)
   }, [defaultScrollY, wrapperRef]);
   useEffect(() => {
     if (
@@ -305,6 +316,7 @@ export const Gantt: React.FC<GanttProps> = ({
   // scroll events TODO
 
   const getDataScroll = (listTask: any, scrollYPosition: number): { newItems: any, newOffsetY: number } => {
+    console.log("getDataScroll");
     if (!scrollLoadData) {
       return {
         newItems: listTask,
@@ -345,16 +357,11 @@ export const Gantt: React.FC<GanttProps> = ({
     }
   };
 
-  // const handleScrollTask = debounce((scrollYPosition: number) => {
-  //   if (onScrollTask && Math.abs(defaultScrollY - scrollYPosition) > 1) {
-  //     onScrollTask({
-  //       y: state.scrollY,
-  //     });
-  //   }
-  // }, 0);
 
   const handleScrollTask = (scrollYPosition: number) => {
-    if (onScrollTask && Math.abs(defaultScrollY - scrollYPosition) > 1) {
+    console.log("handleScrollTask", scrollYPosition, onScrollTask);
+    if (onScrollTask) {
+      console.log('==== handleScrollTask');
       onScrollTask({
         y: scrollYPosition < 2 ? 0 : scrollYPosition,
       });
@@ -362,89 +369,127 @@ export const Gantt: React.FC<GanttProps> = ({
   };
 
 
-  const handleZoomTask = debounce((type: "zoomIn" | "zoomOut", event?: any) => {
+  const handleZoomTask = (type: "zoomIn" | "zoomOut", event?: any) => {
+    console.log("handleZoomTask",type);
     if (onZoomTask) {
       onZoomTask(type, event);
     }
-  }, 200);
+  }
 
-  useEffect(() => {
-    const handleWheel = (event: WheelEvent) => {
-      if(ignoreScrollEvent.current) {
-        return
+  const handleWheel = debounce((event: any) => {
+    console.log("handleWheel", ignoreScrollEvent.current);
+    event.stopImmediatePropagation()
+    event.preventDefault();
+    // debugger;
+    if (ignoreScrollEvent.current) {
+      return;
+    }
+    console.log('handleWheel');
+    ignoreScrollEvent.current = true;
+    if (event.ctrlKey || event.metaKey) {
+      // event.preventDefault();
+      // Ngăn chặn hành động zoom mặc định của trình duyệt
+      if (event.deltaY < 0) {
+        handleZoomTask("zoomIn", event);
+      } else {
+        handleZoomTask("zoomOut", event);
       }
-      if (event.ctrlKey || event.metaKey) {
-        event.preventDefault(); // Ngăn chặn hành động zoom mặc định của trình duyệt
-        if (event.deltaY < 0) {
-          handleZoomTask("zoomIn", event);
-        } else {
-          handleZoomTask("zoomOut", event);
-        }
-        return;
+      ignoreScrollEvent.current = false;
+      return;
+    }
+    if (event.shiftKey || event.deltaX) {
+      // event.preventDefault();
+      const scrollMove = event.deltaX ? event.deltaX : event.deltaY;
+      let newScrollX = state.scrollX + scrollMove;
+      if (newScrollX < 0) {
+        newScrollX = 0;
+      } else if (newScrollX > svgWidth) {
+        newScrollX = svgWidth;
       }
-      if (event.shiftKey || event.deltaX) {
-        const scrollMove = event.deltaX ? event.deltaX : event.deltaY;
-        let newScrollX = state.scrollX + scrollMove;
-        if (newScrollX < 0) {
-          newScrollX = 0;
-        } else if (newScrollX > svgWidth) {
-          newScrollX = svgWidth;
-        }
-        if (newScrollX !== state.scrollX) {
-          setState({
-            scrollX: newScrollX,
-          });
-          countScroll.current += 1
-          event.preventDefault();
-        }
-      } else if (ganttHeight) {
-        let newScrollY = state.scrollY + event.deltaY;
-        if (newScrollY < 0) {
-          newScrollY = 0;
-        } else if (newScrollY > ganttFullHeight - ganttHeight) {
-          newScrollY = ganttFullHeight - ganttHeight;
-        }
-        if (newScrollY !== state.scrollY) {
-          setState({
-            scrollY: newScrollY,
-          });
-          if (ganttHeight && ganttHeight < ganttFullHeight) {
-            handleScroll(newScrollY);
-            handleScrollTask(newScrollY);
-          }
-          event.preventDefault();
-        }
-      } else if (maxHeight) {
-        let newScrollY = state.scrollY + event.deltaY;
-        if (newScrollY < 0) {
-          newScrollY = 0;
-        } else if (newScrollY > ganttFullHeight) {
-          newScrollY = ganttFullHeight;
-        }
-        if (newScrollY !== state.scrollY) {
-          setState({
-            scrollY: newScrollY,
-          });
+      if (newScrollX !== state.scrollX) {
+        console.log("newScrollX", newScrollX);
+        setState({
+          scrollX: newScrollX,
+        });
+        countScroll.current += 1;
+        // event.preventDefault();
+      }
+    } else if (ganttHeight) {
+      // event.preventDefault();
+      let newScrollY = state.scrollY + event.deltaY;
+      if (newScrollY < 0) {
+        newScrollY = 0;
+      } else if (newScrollY > ganttFullHeight - ganttHeight) {
+        newScrollY = ganttFullHeight - ganttHeight;
+      }
+      if (newScrollY !== state.scrollY) {
+        console.log("newScrollY", newScrollY);
+        setState({
+          scrollY: newScrollY,
+        });
+        if (ganttHeight && ganttHeight < ganttFullHeight) {
+          handleScroll(newScrollY);
           handleScrollTask(newScrollY);
-          // @ts-ignore
-          wrapperRef.current.scrollTop = newScrollY;
-          event.preventDefault();
         }
       }
+    } else if (maxHeight) {
+      // event.preventDefault();
+      let newScrollY = state.scrollY + event.deltaY;
+      if (newScrollY < 0) {
+        newScrollY = 0;
+      } else if (newScrollY > ganttFullHeight) {
+        newScrollY = ganttFullHeight;
+      }
+      if (newScrollY !== state.scrollY) {
+        console.log("newScrollY", newScrollY);
+        setState({
+          scrollY: newScrollY,
+        });
+        handleScrollTask(newScrollY);
+        // @ts-ignore
+        wrapperRef.current.scrollTop = newScrollY;
+        // event.preventDefault();
+      }
+    }
+    ignoreScrollEvent.current = false;
 
-      ignoreScrollEvent.current = true;
-    };
+  }, debounceTime);
+
+  const onWheel = (event: any) => {
+    handleWheel(event);
+  };
+  const isFocusWrapper = useRef(false)
+
+  const onMouseenter = (event:any) => {
+    console.log("event",event);
+    isFocusWrapper.current = true
+  }
+  const onMouseleave = (event:any) => {
+    console.log("event",event);
+    isFocusWrapper.current = false
+  }
+  useEffect(() => {
     // subscribe if scroll is necessary
 
     // if (ganttHeight && ganttHeight < ganttFullHeight) {
-    wrapperRef.current?.addEventListener("wheel", handleWheel, {
+    wrapperRef.current?.addEventListener("wheel", onWheel, {
       passive: false,
     });
+    wrapperRef.current?.addEventListener('mouseenter', onMouseenter)
+    wrapperRef.current?.addEventListener('mouseleave', onMouseleave)
+    window.addEventListener('wheel', function(event) {
+      if (isFocusWrapper.current) {
+        event.preventDefault();
+      }
+    }, { passive: false });
     // } else {
     //   wrapperRef.current?.removeEventListener("wheel", handleWheel);
     // }
     return () => {
-      wrapperRef.current?.removeEventListener("wheel", handleWheel);
+      wrapperRef.current?.removeEventListener("wheel", onWheel);
+      wrapperRef.current?.removeEventListener("wheel", onMouseenter);
+      wrapperRef.current?.removeEventListener("wheel", onMouseleave);
+
     };
   }, [
     wrapperRef,
@@ -459,36 +504,43 @@ export const Gantt: React.FC<GanttProps> = ({
 
   //
 
-  const handleScrollY = (event: SyntheticEvent<HTMLDivElement>) => {
-    if (state.scrollY !== event.currentTarget.scrollTop && !ignoreScrollEvent.current) {
-      const { offsetHeight, scrollHeight, scrollTop } = event.currentTarget;
+  const handleScrollY = debounce((event: any) => {
+    console.log("handleScrollY", ignoreScrollEvent.current);
+    // debugger;
+    if (ignoreScrollEvent.current) return;
+    console.log('handleScrollY');
+    ignoreScrollEvent.current = true;
+    event.stopPropagation()
+    event.preventDefault();
+    if (state.scrollY !== event.target.scrollTop) {
+      const { offsetHeight, scrollHeight, scrollTop } = event.target;
       let newScrollY = scrollTop;
-      if (scrollHeight - offsetHeight <=  scrollTop) {
+      if (scrollHeight - offsetHeight <= scrollTop) {
         newScrollY = scrollHeight - offsetHeight;
       }
       setState({
         scrollY: newScrollY,
       });
       handleScrollTask(newScrollY);
-      if (ganttHeight && ganttHeight < ganttFullHeight) {
-        handleScrollTask(newScrollY);
-      }
-      ignoreScrollEvent.current = true;
-    } else {
-      ignoreScrollEvent.current = false;
+      handleScroll(newScrollY);
+      // if (ganttHeight && ganttHeight < ganttFullHeight) {
+      //   handleScrollTask(newScrollY);
+      // }
     }
-  };
+    ignoreScrollEvent.current = false;
+  }, debounceTime);
 
   const handleScrollX = (event: SyntheticEvent<HTMLDivElement>) => {
-    if (state.scrollX !== event.currentTarget.scrollLeft && !ignoreScrollEvent.current) {
+    if (ignoreScrollEvent.current) return;
+    console.log('handleScrollX');
+    ignoreScrollEvent.current = true;
+    if (state.scrollX !== event.currentTarget.scrollLeft) {
       setState({
         scrollX: event.currentTarget.scrollLeft,
       });
-      countScroll.current += 1
-      ignoreScrollEvent.current = true;
-    } else {
-      ignoreScrollEvent.current = false;
+      countScroll.current += 1;
     }
+    ignoreScrollEvent.current = false;
   };
 
   /**
@@ -496,6 +548,7 @@ export const Gantt: React.FC<GanttProps> = ({
    */
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     event.preventDefault();
+    ignoreScrollEvent.current = true;
     let newScrollY = state.scrollY;
     let newScrollX = state.scrollX;
     let isX = true;
@@ -529,7 +582,7 @@ export const Gantt: React.FC<GanttProps> = ({
         setState({
           scrollX: newScrollX,
         });
-        countScroll.current += 1
+        countScroll.current += 1;
       }
 
     } else {
@@ -548,7 +601,8 @@ export const Gantt: React.FC<GanttProps> = ({
         }
       }
     }
-    ignoreScrollEvent.current = true;
+    console.log("handleKeyDown");
+    ignoreScrollEvent.current = false;
   };
 
   /**
@@ -714,6 +768,7 @@ export const Gantt: React.FC<GanttProps> = ({
     fontFamily,
     fontSize,
     rtl,
+    hidden: !listCellWidth,
   };
   const barProps: TaskGanttContentProps = {
     tasks: state.visibleItems || [],
@@ -769,26 +824,30 @@ export const Gantt: React.FC<GanttProps> = ({
     return !!ItemGanttContent && propsGantt ? <ItemGanttContent {...propsGantt}></ItemGanttContent> : undefined;
   });
 
+  useImperativeHandle(ref, () => ({
+     // Expose hàm cho component cha
+    onChangeDefaultScrollY,
+  }));
   return (
     <div>
-      { state.scrollY >= 50 && !listCellWidth &&
-        <CalendarGant
-          gridProps={gridProps}
-          calendarProps={calendarProps}
-          barProps={barProps}
-          ganttHeight={ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight}
-          scrollY={state.scrollY}
-          scrollX={state.scrollX}
-        ></CalendarGant>
-      }
+      {/*{!listCellWidth &&*/}
+      {/*  <CalendarGant*/}
+      {/*    gridProps={gridProps}*/}
+      {/*    calendarProps={calendarProps}*/}
+      {/*    barProps={barProps}*/}
+      {/*    ganttHeight={ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight}*/}
+      {/*    scrollY={state.scrollY}*/}
+      {/*    scrollX={state.scrollX}*/}
+      {/*  ></CalendarGant>*/}
+      {/*}*/}
       <div
         style={{
           maxHeight: maxHeight || "100%",
           overflow: "auto",
         }}
         ref={wrapperRef}
-        onScroll={handleScrollY}
-
+        // onScroll={handleScrollY}
+        // onWheel={handleWheel}
       >
 
         <div
@@ -797,7 +856,7 @@ export const Gantt: React.FC<GanttProps> = ({
           tabIndex={0}
 
         >
-          {listCellWidth && <TaskList {...tableProps} />}
+          {listCellWidth ? <TaskList {...tableProps} /> : <TaskTable />}
           <TaskGantt
             gridProps={gridProps}
             calendarProps={calendarProps}
@@ -819,7 +878,7 @@ export const Gantt: React.FC<GanttProps> = ({
               scrollY={state.scrollY}
               task={state.ganttEvent.changedTask}
               headerHeight={headerHeight}
-              taskListWidth={state.taskListWidth}
+              taskListWidth={listCellWidth ? state.taskListWidth : widthTable}
               TooltipContent={TooltipContent}
               rtl={rtl}
               svgWidth={svgWidth}
@@ -838,11 +897,11 @@ export const Gantt: React.FC<GanttProps> = ({
       </div>
       <HorizontalScroll
         svgWidth={svgWidth}
-        taskListWidth={state.taskListWidth}
+        taskListWidth={listCellWidth ? state.taskListWidth : widthTable}
         scroll={state.scrollX}
         rtl={rtl}
         onScroll={handleScrollX}
       />
     </div>
   );
-};
+});

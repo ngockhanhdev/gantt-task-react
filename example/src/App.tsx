@@ -236,15 +236,22 @@ const App = () => {
             onSelect={handleSelect}
             onExpanderClick={handleExpanderClick}
             listCellWidth={isChecked ? "155px" : ""}
-            maxHeight={'500px'}
+            // maxHeight={'500px'}
             // scrollLoadData={true}
-            // ganttHeight={ganttHeight}
+            ganttHeight={500}
+            // preStepsCount={5}
+            scrollLoadData={true}
             rowHeight={rowHeight}
             columnWidth={columnWidth}
             onZoomTask={onZoomTask}
             // ItemGanttContent={ItemGanttContent}
           />
         }
+        <div style={{
+          height: 1000,
+          width: '100%',
+          backgroundColor: "midnightblue",
+        }}></div>
       </div>
 
     </div>

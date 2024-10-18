@@ -24,6 +24,20 @@ export const VerticalScroll: React.FC<{
     }
   }, [scroll]);
 
+  useEffect(() => {
+    let handleScroll = (event:any) => {
+      if (onScroll) {
+        onScroll(event)
+      }
+    }
+    scrollRef.current?.addEventListener("scroll", handleScroll, {
+      passive: false,
+    });
+    return () => {
+      scrollRef.current?.removeEventListener("scroll", handleScroll);
+    };
+  }, [onScroll]);
+
   return (
     <div
       style={{
@@ -32,7 +46,7 @@ export const VerticalScroll: React.FC<{
         marginLeft: rtl ? "" : "-1rem",
       }}
       className={styles.scroll}
-      onScroll={onScroll}
+      // onScroll={onScroll}
       ref={scrollRef}
     >
       <div style={{ height: ganttFullHeight, width: 1 }} />

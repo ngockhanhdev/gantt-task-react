@@ -154,6 +154,8 @@ export interface StylingOption {
     fontSize?: string;
     task: Task;
   }>;
+  TaskTable?: React.FC<any>;
+  widthTable?: number
 }
 
 export interface GanttProps extends EventOption, DisplayOption, StylingOption {

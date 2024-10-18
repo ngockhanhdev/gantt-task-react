@@ -9,7 +9,6 @@ export const HorizontalScroll: React.FC<{
   onScroll: (event: SyntheticEvent<HTMLDivElement>) => void;
 }> = ({ scroll, svgWidth, taskListWidth, rtl, onScroll }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollLeft = scroll;
