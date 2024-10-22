@@ -85,7 +85,6 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
                                                          eventGridGantt,
                                                        }, ref) => {
 
-  console.log('projectBackgroundColor',projectBackgroundColor);
   const getDateSetup = () => {
     const [startDate, endDate] = ganttDateRange(tasks, viewMode, preStepsCount);
     return { viewMode, dates: seedDates(startDate, endDate, viewMode) };
@@ -232,7 +231,6 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
 
   useEffect(() => {
     if (ganttHeight && scrollLoadData) {
-      console.log('11111');
       handleScroll(0)
     } else {
       let { newItems, newOffsetY } = getDataScroll(state.barTasks, 0);
@@ -249,7 +247,6 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   ]);
 
   const onChangeDefaultScrollY = (value: number) => {
-    console.log('typeSetDataScroll.current',typeSetDataScroll.current);
     if (value !== state.scrollY && Math.abs(value - state.scrollY) > 1 && typeSetDataScroll.current !== "onChangeDefaultScrollY") {
       typeSetDataScroll.current = "onChangeDefaultScrollY";
       setState({
@@ -357,8 +354,6 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       listTask.length - 1,
       Math.floor((scrollYPosition + ganttHeightCheck) / rowHeight),
     );
-    console.log("newStartIndex",newStartIndex);
-    console.log("newEndIndex",newEndIndex);
     let newItems = listTask.slice(newStartIndex, newEndIndex + 5);
     let newOffsetY = newStartIndex * rowHeight || 0;
     return {
@@ -390,7 +385,6 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
 
   const handleScrollTask = (scrollYPosition: number) => {
     if (onScrollTask) {
-      console.log("==== handleScrollTask", scrollYPosition);
       onScrollTask({
         y: scrollYPosition < 2 ? 0 : scrollYPosition,
       });
@@ -557,8 +551,6 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
     ignoreScrollEvent.current = true;
     // event.stopPropagation()
     event.preventDefault();
-    console.log('typeSetDataScroll.current',typeSetDataScroll.current);
-
     if (
       typeSetDataScroll.current === "onChangeDefaultScrollY"
     ) {
@@ -594,7 +586,6 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
     event.preventDefault();
     ignoreScrollEvent.current = true;
     if (state.scrollX !== event.target.scrollLeft) {
-      // console.log("event.target",event);
       const { scrollWidth, offsetWidth, scrollLeft } = event.target;
       console.log(scrollWidth, offsetWidth, scrollLeft);
       let newScrollX = scrollLeft;
@@ -652,8 +643,6 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       }
 
     } else {
-      console.log('typeSetDataScroll.current',typeSetDataScroll.current);
-
       if (
         typeSetDataScroll.current === "onChangeDefaultScrollY"
       ) {
