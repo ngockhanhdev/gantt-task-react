@@ -88,13 +88,13 @@ export const ganttDateRange = (
     case ViewMode.Year:
       newStartDate = addToDate(newStartDate, -1, "year");
       newStartDate = startOfDate(newStartDate, "year");
-      newEndDate = addToDate(newEndDate, 3 , "year");
+      newEndDate = addToDate(newEndDate, 5 , "year");
       newEndDate = startOfDate(newEndDate, "year");
       break;
     case ViewMode.QuarterYear:
       newStartDate = addToDate(newStartDate, -3, "month");
       newStartDate = startOfDate(newStartDate, "month");
-      newEndDate = addToDate(newEndDate, 3, "year");
+      newEndDate = addToDate(newEndDate, 6, "year");
       newEndDate = startOfDate(newEndDate, "year");
       break;
     case ViewMode.Month:
@@ -123,13 +123,13 @@ export const ganttDateRange = (
       newStartDate = startOfDate(newStartDate, "day");
       newStartDate = addToDate(newStartDate, -1 * preStepsCount, "day");
       newEndDate = startOfDate(newEndDate, "day");
-      newEndDate = addToDate(newEndDate, 114, "hour"); // 24(1 day)*5 - 6
+      newEndDate = addToDate(newEndDate, 234, "hour"); // 24(1 day)*10 - 6
       break;
     case ViewMode.HalfDay:
       newStartDate = startOfDate(newStartDate, "day");
       newStartDate = addToDate(newStartDate, -1 * preStepsCount, "day");
       newEndDate = startOfDate(newEndDate, "day");
-      newEndDate = addToDate(newEndDate, 156, "hour"); // 24(1 day)*7 - 12
+      newEndDate = addToDate(newEndDate, 228, "hour"); // 24(1 day)*10 - 12
       break;
     case ViewMode.Hour:
       newStartDate = startOfDate(newStartDate, "hour");

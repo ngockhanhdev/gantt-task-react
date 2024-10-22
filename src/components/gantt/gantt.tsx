@@ -1,9 +1,9 @@
 import React, {
-  SyntheticEvent,
+  // SyntheticEvent,
   useRef,
   useEffect,
   useMemo,
-forwardRef, useImperativeHandle
+  forwardRef, useImperativeHandle,
 } from "react";
 import { ViewMode, GanttProps, Task } from "../../types/public-types";
 import { GridProps } from "../grid/grid";
@@ -21,65 +21,68 @@ import { convertToBarTasks } from "../../helpers/bar-helper";
 import { GanttEvent } from "../../types/gantt-task-actions";
 import { DateSetup } from "../../types/date-setup";
 import { HorizontalScroll } from "../other/horizontal-scroll";
-import { debounce, removeHiddenTasks, sortTasks } from "../../helpers/other-helper";
+import { removeHiddenTasks, sortTasks } from "../../helpers/other-helper";
+import _ from "lodash";
 import styles from "./gantt.module.css";
 import useSetState from "../../helpers/useSetState";
 // import { CalendarGant } from "./calendar-gantt";
 
-const debounceTime: number = 0;
+const debounceTime: number = 10;
 const TaskTableDefault: React.FC<any> = () => {
   return <div></div>;
 };
 export const Gantt: React.FC<GanttProps> = forwardRef(({
-                                              tasks,
-                                              headerHeight = 50,
-                                              columnWidth = 60,
-                                              listCellWidth = "155px",
-                                              rowHeight = 50,
-                                              ganttHeight = 0,
-                                              maxHeight = "100%",
-                                              scrollLoadData = false,
-                                              viewMode = ViewMode.Day,
-                                              preStepsCount = 1,
-                                              locale = "en-GB",
-                                              barFill = 60,
-                                              barCornerRadius = 3,
-                                              barProgressColor = "#a3a3ff",
-                                              barProgressSelectedColor = "#8282f5",
-                                              barBackgroundColor = "#b8c2cc",
-                                              barBackgroundSelectedColor = "#aeb8c2",
-                                              projectProgressColor = "#7db59a",
-                                              projectProgressSelectedColor = "#59a985",
-                                              projectBackgroundColor = "#fac465",
-                                              projectBackgroundSelectedColor = "#f7bb53",
-                                              milestoneBackgroundColor = "#f1c453",
-                                              milestoneBackgroundSelectedColor = "#f29e4c",
-                                              rtl = false,
-                                              handleWidth = 8,
-                                              timeStep = 300000,
-                                              arrowColor = "grey",
-                                              fontFamily = "Arial, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue",
-                                              fontSize = "14px",
-                                              arrowIndent = 20,
-                                              todayColor = "rgba(252, 248, 227, 0.5)",
-                                              viewDate,
-                                              TooltipContent = StandardTooltipContent,
-                                              TaskListHeader = TaskListHeaderDefault,
-                                              TaskListTable = TaskListTableDefault,
-                                              TaskTable = TaskTableDefault,
-                                              ItemGanttContent,
-                                              onDateChange,
-                                              onProgressChange,
-                                              onDoubleClick,
-                                              onClick,
-                                              onDelete,
-                                              onSelect,
-                                              onExpanderClick,
-                                              defaultScrollY = 0,
-                                              onScrollTask,
-                                              onZoomTask,
-                                              widthTable= 0
-                                            }, ref) => {
+                                                         tasks,
+                                                         headerHeight = 50,
+                                                         columnWidth = 60,
+                                                         listCellWidth = "155px",
+                                                         rowHeight = 50,
+                                                         ganttHeight = 0,
+                                                         maxHeight = "100%",
+                                                         scrollLoadData = false,
+                                                         viewMode = ViewMode.Day,
+                                                         preStepsCount = 1,
+                                                         locale = "en-GB",
+                                                         barFill = 60,
+                                                         barCornerRadius = 3,
+                                                         barProgressColor = "#a3a3ff",
+                                                         barProgressSelectedColor = "#8282f5",
+                                                         barBackgroundColor = "#b8c2cc",
+                                                         barBackgroundSelectedColor = "#aeb8c2",
+                                                         projectProgressColor = "#7db59a",
+                                                         projectProgressSelectedColor = "#59a985",
+                                                         projectBackgroundColor = "#fac465",
+                                                         projectBackgroundSelectedColor = "#f7bb53",
+                                                         milestoneBackgroundColor = "#f1c453",
+                                                         milestoneBackgroundSelectedColor = "#f29e4c",
+                                                         rtl = false,
+                                                         handleWidth = 8,
+                                                         timeStep = 300000,
+                                                         arrowColor = "grey",
+                                                         fontFamily = "Arial, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue",
+                                                         fontSize = "14px",
+                                                         arrowIndent = 20,
+                                                         todayColor = "rgba(252, 248, 227, 0.5)",
+                                                         viewDate,
+                                                         hiddenTooltip,
+                                                         TooltipContent = StandardTooltipContent,
+                                                         TaskListHeader = TaskListHeaderDefault,
+                                                         TaskListTable = TaskListTableDefault,
+                                                         TaskTable = TaskTableDefault,
+                                                         ItemGanttContent,
+                                                         onDateChange,
+                                                         onProgressChange,
+                                                         onDoubleClick,
+                                                         onClick,
+                                                         onDelete,
+                                                         onSelect,
+                                                         onExpanderClick,
+                                                         defaultScrollY = 0,
+                                                         onScrollTask,
+                                                         onZoomTask,
+                                                         widthTable = 0,
+                                                         eventTaskGantt,
+                                                       }, ref) => {
 
   const getDateSetup = () => {
     const [startDate, endDate] = ganttDateRange(tasks, viewMode, preStepsCount);
@@ -112,7 +115,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       action: "",
     },
     selectedTask: undefined,
-    scrollY: 0,
+    scrollY: defaultScrollY,
     scrollX: 0,
 
     // scroll virtualized
@@ -134,9 +137,11 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   );
 
   const svgWidth = state.dateSetup.dates.length * columnWidth;
-  const ganttFullHeight = !listCellWidth ? (state.barTasks.length * rowHeight) - (headerHeight || 0) : state.barTasks.length * rowHeight;
+  const ganttFullHeight = state.barTasks.length * rowHeight;
+  const ganttFullHeightScroll = !listCellWidth ? (state.barTasks.length * rowHeight) - (headerHeight || 0) : state.barTasks.length * rowHeight;
 
   const ignoreScrollEvent = useRef<boolean>(false);
+  const typeSetDataScroll = useRef<string>("");
   // task change events
 
   const handleRemoveHiddenTask = (listTask: Task[]): Task[] => {
@@ -221,14 +226,17 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
 
   useEffect(() => {
     let { newItems, newOffsetY } = getDataScroll(state.barTasks, 0);
+    console.log("useEffect", newItems, newOffsetY);
     setState({
       visibleItems: newItems,
       offsetY: newOffsetY,
     });
   }, [state.barTasks, ganttFullHeight]);
 
-  const onChangeDefaultScrollY = (value:number) => {
-    if (value !== state.scrollY && Math.abs(value - state.scrollY) > 1) {
+  const onChangeDefaultScrollY = (value: number) => {
+    console.log('typeSetDataScroll.current',typeSetDataScroll.current);
+    if (value !== state.scrollY && Math.abs(value - state.scrollY) > 1 && typeSetDataScroll.current !== "onChangeDefaultScrollY") {
+      typeSetDataScroll.current = "onChangeDefaultScrollY";
       setState({
         scrollY: value,
       });
@@ -239,12 +247,15 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
           wrapperRef.current.scrollTop = value;
         }
       }
-    }
-  }
+      typeSetDataScroll.current = "";
 
-  useEffect(() => {
-    onChangeDefaultScrollY(defaultScrollY)
-  }, [defaultScrollY, wrapperRef]);
+    }
+  };
+
+  // useEffect(() => {
+  //   onChangeDefaultScrollY(defaultScrollY);
+  //   typeSetDataScroll.current = "";
+  // }, [defaultScrollY, wrapperRef]);
   useEffect(() => {
     if (
       viewMode === state.dateSetup.viewMode &&
@@ -316,7 +327,6 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   // scroll events TODO
 
   const getDataScroll = (listTask: any, scrollYPosition: number): { newItems: any, newOffsetY: number } => {
-    console.log("getDataScroll");
     if (!scrollLoadData) {
       return {
         newItems: listTask,
@@ -332,7 +342,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       listTask.length - 1,
       Math.floor((scrollYPosition + ganttHeightCheck) / rowHeight),
     );
-    let newItems = listTask.slice(newStartIndex, newEndIndex + 1);
+    let newItems = listTask.slice(newStartIndex, newEndIndex + 5);
     let newOffsetY = newStartIndex * rowHeight || 0;
     return {
       newItems,
@@ -341,27 +351,29 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   };
 
 
-  const handleScroll = (scrollYPosition: number) => {
+  const handleScroll = (scrollYPosition: number, isReload?: boolean) => {
     if (!scrollLoadData) {
       return;
     }
+    console.log("scrollLoadData", scrollYPosition, isReload);
     let listTask: Task[] = handleRemoveHiddenTask(tasks);
     let { newItems, newOffsetY } = getDataScroll(listTask, scrollYPosition || 0);
-    if (newOffsetY != state.offsetY) {
-      let { tasksData, dataSetup } = changeTaskData(newItems);
-      setState({
-        visibleItems: tasksData,
-        offsetY: newOffsetY,
-        dateSetup: dataSetup,
-      });
-    }
+    console.log("getDataScroll", newItems, newOffsetY);
+    // if (newOffsetY !== state.offsetY || isReload) {
+    let { tasksData, dataSetup } = changeTaskData(newItems);
+    console.log("changeTaskData", tasksData, dataSetup);
+    setState({
+      visibleItems: tasksData,
+      offsetY: newOffsetY,
+      dateSetup: dataSetup,
+    });
+    // }
   };
 
 
   const handleScrollTask = (scrollYPosition: number) => {
-    console.log("handleScrollTask", scrollYPosition, onScrollTask);
     if (onScrollTask) {
-      console.log('==== handleScrollTask');
+      console.log("==== handleScrollTask", scrollYPosition);
       onScrollTask({
         y: scrollYPosition < 2 ? 0 : scrollYPosition,
       });
@@ -369,22 +381,19 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   };
 
 
-  const handleZoomTask = (type: "zoomIn" | "zoomOut", event?: any) => {
-    console.log("handleZoomTask",type);
+  const handleZoomTask = _.debounce((type: "zoomIn" | "zoomOut", event?: any) => {
     if (onZoomTask) {
       onZoomTask(type, event);
     }
-  }
+  }, 100);
 
-  const handleWheel = debounce((event: any) => {
-    console.log("handleWheel", ignoreScrollEvent.current);
-    event.stopImmediatePropagation()
+  const handleWheel = _.debounce((event: any) => {
     event.preventDefault();
     // debugger;
     if (ignoreScrollEvent.current) {
       return;
     }
-    console.log('handleWheel');
+    console.log("handleWheel");
     ignoreScrollEvent.current = true;
     if (event.ctrlKey || event.metaKey) {
       // event.preventDefault();
@@ -406,6 +415,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       } else if (newScrollX > svgWidth) {
         newScrollX = svgWidth;
       }
+      newScrollX = Number(newScrollX.toFixed(0));
       if (newScrollX !== state.scrollX) {
         console.log("newScrollX", newScrollX);
         setState({
@@ -415,6 +425,14 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
         // event.preventDefault();
       }
     } else if (ganttHeight) {
+      console.log('typeSetDataScroll.current',typeSetDataScroll.current);
+      if (
+        typeSetDataScroll.current === "onChangeDefaultScrollY"
+      ) {
+        return;
+      }
+      typeSetDataScroll.current = "bodyScroll";
+
       // event.preventDefault();
       let newScrollY = state.scrollY + event.deltaY;
       if (newScrollY < 0) {
@@ -422,8 +440,10 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       } else if (newScrollY > ganttFullHeight - ganttHeight) {
         newScrollY = ganttFullHeight - ganttHeight;
       }
+      newScrollY = Number(newScrollY.toFixed(0));
       if (newScrollY !== state.scrollY) {
         console.log("newScrollY", newScrollY);
+
         setState({
           scrollY: newScrollY,
         });
@@ -433,6 +453,12 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
         }
       }
     } else if (maxHeight) {
+      if (
+        typeSetDataScroll.current === "onChangeDefaultScrollY"
+      ) {
+        return;
+      }
+      typeSetDataScroll.current = "bodyScroll";
       // event.preventDefault();
       let newScrollY = state.scrollY + event.deltaY;
       if (newScrollY < 0) {
@@ -440,6 +466,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       } else if (newScrollY > ganttFullHeight) {
         newScrollY = ganttFullHeight;
       }
+      newScrollY = Number(newScrollY.toFixed(0));
       if (newScrollY !== state.scrollY) {
         console.log("newScrollY", newScrollY);
         setState({
@@ -458,16 +485,14 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   const onWheel = (event: any) => {
     handleWheel(event);
   };
-  const isFocusWrapper = useRef(false)
+  const isFocusWrapper = useRef(false);
 
-  const onMouseenter = (event:any) => {
-    console.log("event",event);
-    isFocusWrapper.current = true
-  }
-  const onMouseleave = (event:any) => {
-    console.log("event",event);
-    isFocusWrapper.current = false
-  }
+  const onMouseenter = () => {
+    isFocusWrapper.current = true;
+  };
+  const onMouseleave = () => {
+    isFocusWrapper.current = false;
+  };
   useEffect(() => {
     // subscribe if scroll is necessary
 
@@ -475,9 +500,9 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
     wrapperRef.current?.addEventListener("wheel", onWheel, {
       passive: false,
     });
-    wrapperRef.current?.addEventListener('mouseenter', onMouseenter)
-    wrapperRef.current?.addEventListener('mouseleave', onMouseleave)
-    window.addEventListener('wheel', function(event) {
+    wrapperRef.current?.addEventListener("mouseenter", onMouseenter);
+    wrapperRef.current?.addEventListener("mouseleave", onMouseleave);
+    window.addEventListener("wheel", function(event) {
       if (isFocusWrapper.current) {
         event.preventDefault();
       }
@@ -487,8 +512,8 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
     // }
     return () => {
       wrapperRef.current?.removeEventListener("wheel", onWheel);
-      wrapperRef.current?.removeEventListener("wheel", onMouseenter);
-      wrapperRef.current?.removeEventListener("wheel", onMouseleave);
+      wrapperRef.current?.removeEventListener("mouseenter", onMouseenter);
+      wrapperRef.current?.removeEventListener("mouseleave", onMouseleave);
 
     };
   }, [
@@ -502,22 +527,36 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
     maxHeight,
   ]);
 
+  useEffect(() => {
+    if (viewMode !== state.dateSetup.viewMode) {
+      console.log("viewMode");
+      handleScroll(state.scrollY, true);
+    }
+  }, [viewMode]);
   //
 
-  const handleScrollY = debounce((event: any) => {
+  const handleScrollY = _.debounce((event: any) => {
     console.log("handleScrollY", ignoreScrollEvent.current);
     // debugger;
     if (ignoreScrollEvent.current) return;
-    console.log('handleScrollY');
     ignoreScrollEvent.current = true;
-    event.stopPropagation()
+    // event.stopPropagation()
     event.preventDefault();
+    console.log('typeSetDataScroll.current',typeSetDataScroll.current);
+
+    if (
+      typeSetDataScroll.current === "onChangeDefaultScrollY"
+    ) {
+      return;
+    }
+    typeSetDataScroll.current = "bodyScroll";
     if (state.scrollY !== event.target.scrollTop) {
       const { offsetHeight, scrollHeight, scrollTop } = event.target;
       let newScrollY = scrollTop;
       if (scrollHeight - offsetHeight <= scrollTop) {
         newScrollY = scrollHeight - offsetHeight;
       }
+      newScrollY = Number(newScrollY.toFixed(0));
       setState({
         scrollY: newScrollY,
       });
@@ -530,18 +569,30 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
     ignoreScrollEvent.current = false;
   }, debounceTime);
 
-  const handleScrollX = (event: SyntheticEvent<HTMLDivElement>) => {
+
+  // const debounce
+
+  const handleScrollX = _.debounce((event: any) => {
     if (ignoreScrollEvent.current) return;
-    console.log('handleScrollX');
+    console.log("handleScrollX");
+    // event.stopPropagation()
+    event.preventDefault();
     ignoreScrollEvent.current = true;
-    if (state.scrollX !== event.currentTarget.scrollLeft) {
+    if (state.scrollX !== event.target.scrollLeft) {
+      // console.log("event.target",event);
+      const { scrollWidth, offsetWidth, scrollLeft } = event.target;
+      console.log(scrollWidth, offsetWidth, scrollLeft);
+      let newScrollX = scrollLeft;
+      if (scrollWidth - offsetWidth <= scrollLeft) {
+        newScrollX = scrollWidth - offsetWidth;
+      }
       setState({
-        scrollX: event.currentTarget.scrollLeft,
+        scrollX: newScrollX,
       });
       countScroll.current += 1;
     }
     ignoreScrollEvent.current = false;
-  };
+  }, 1);
 
   /**
    * Handles arrow keys events and transform it to new scroll
@@ -586,6 +637,14 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       }
 
     } else {
+      console.log('typeSetDataScroll.current',typeSetDataScroll.current);
+
+      if (
+        typeSetDataScroll.current === "onChangeDefaultScrollY"
+      ) {
+        return;
+      }
+      typeSetDataScroll.current = "bodyScroll";
       if (newScrollY < 0) {
         newScrollY = 0;
       } else if (newScrollY > ganttFullHeight - ganttHeight) {
@@ -632,12 +691,15 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   };
 
   const setGanttEvent = (eventGantt: any) => {
-    const { changedTask, action } = eventGantt;
-    // console.log("eventGantt", eventGantt);
+    const { action, changedTask , originalSelectedTask} = eventGantt;
+    console.log("eventGantt", eventGantt);
     setState({
       ganttEvent: eventGantt,
     });
     if (changedTask) {
+      if (eventTaskGantt) {
+        eventTaskGantt(action, changedTask,originalSelectedTask);
+      }
       if (action === "delete") {
         setState({
           ganttEvent: { action: "" },
@@ -825,7 +887,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   });
 
   useImperativeHandle(ref, () => ({
-     // Expose hàm cho component cha
+    // Expose hàm cho component cha
     onChangeDefaultScrollY,
   }));
   return (
@@ -846,15 +908,13 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
           overflow: "auto",
         }}
         ref={wrapperRef}
-        // onScroll={handleScrollY}
-        // onWheel={handleWheel}
       >
-
+        {/*{state.offsetY}*/}
         <div
           className={styles.wrapper}
           onKeyDown={handleKeyDown}
           tabIndex={0}
-
+          // key={state?.offsetY}
         >
           {listCellWidth ? <TaskList {...tableProps} /> : <TaskTable />}
           <TaskGantt
@@ -866,7 +926,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
             scrollX={state.scrollX}
             ItemGanttContent={!!ItemGanttContent ? ItemRenderGanttContent : undefined}
           />
-          {state.ganttEvent.changedTask && (
+          {!hiddenTooltip && state.ganttEvent.changedTask && (
             <Tooltip
               arrowIndent={arrowIndent}
               rowHeight={rowHeight}
@@ -886,8 +946,8 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
             />
           )}
           <VerticalScroll
-            ganttFullHeight={ganttFullHeight}
-            ganttHeight={ganttHeight && ganttHeight < ganttFullHeight ? ganttHeight : ganttFullHeight}
+            ganttFullHeight={ganttFullHeightScroll}
+            ganttHeight={ganttHeight && ganttHeight < ganttFullHeightScroll ? ganttHeight : ganttFullHeightScroll}
             headerHeight={headerHeight}
             scroll={state.scrollY}
             onScroll={handleScrollY}

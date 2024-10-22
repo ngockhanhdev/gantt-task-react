@@ -27,11 +27,11 @@ const App = () => {
   const [isChecked, setIsChecked] = useState(false);
   // const [ganttHeight, setGanttHeight] = useState(200);
   const [scrollX, setScrollX] = useState(0);
-  const [scrollY, setScrollY] = useState(0);
+  const [scrollY, setScrollY] = useState(149);
 
 
   let columnWidth = 65;
-  let rowHeight = 50;
+  let rowHeight = 40;
   if (state.view === ViewMode.Year) {
     columnWidth = 350;
   } else if (state.view === ViewMode.Month) {
@@ -244,6 +244,7 @@ const App = () => {
             rowHeight={rowHeight}
             columnWidth={columnWidth}
             onZoomTask={onZoomTask}
+            // TaskTable={}
             // ItemGanttContent={ItemGanttContent}
           />
         }

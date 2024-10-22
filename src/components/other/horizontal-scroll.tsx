@@ -15,6 +15,20 @@ export const HorizontalScroll: React.FC<{
     }
   }, [scroll]);
 
+  useEffect(() => {
+    let handleScroll = (event:any) => {
+      if (onScroll) {
+        onScroll(event)
+      }
+    }
+    scrollRef.current?.addEventListener("scroll", handleScroll, {
+      passive: false,
+    });
+    return () => {
+      scrollRef.current?.removeEventListener("scroll", handleScroll);
+    };
+  }, [onScroll]);
+
   return (
     <div
       dir="ltr"
@@ -24,7 +38,7 @@ export const HorizontalScroll: React.FC<{
           : `0px 0px 0px ${taskListWidth}px`,
       }}
       className={styles.scrollWrapper}
-      onScroll={onScroll}
+      // onScroll={onScroll}
       ref={scrollRef}
     >
       <div style={{ width: svgWidth }} className={styles.scroll} />

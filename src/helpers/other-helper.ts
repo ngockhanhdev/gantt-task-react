@@ -60,15 +60,6 @@ export const sortTasks = (taskA: Task, taskB: Task) => {
   }
 };
 
-export function debounce<T extends (...args: any[]) => any>(func: T, delay: number): (...args: Parameters<T>) => void {
-  let timeoutId: ReturnType<typeof setTimeout>;
-
-  return function(...args: Parameters<T>): void {
-    clearTimeout(timeoutId);
-    // @ts-ignore
-    timeoutId = setTimeout(() => func.apply(this, args), delay);
-  };
-}
 
 interface DataPoint {
   year: string;

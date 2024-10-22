@@ -122,6 +122,7 @@ export interface StylingOption {
   arrowColor?: string;
   arrowIndent?: number;
   todayColor?: string;
+  hiddenTooltip?:boolean
   TooltipContent?: React.FC<{
     task: Task;
     fontSize: string;
@@ -156,6 +157,7 @@ export interface StylingOption {
   }>;
   TaskTable?: React.FC<any>;
   widthTable?: number
+  eventTaskGantt?: (event:any,changeTask: Task, originalSelectedTask: Task) => void;
 }
 
 export interface GanttProps extends EventOption, DisplayOption, StylingOption {

@@ -35,11 +35,12 @@ export const TaskGantt: React.FC<TaskGanttProps> = ({
   const newBarProps = { ...barProps, svg: ganttSVGRef };
 
   useEffect(() => {
+    console.log("TaskGantt scrollY",scrollY);
     if (horizontalContainerRef.current) {
-      // console.log("scrollY", scrollY);
+      console.log("scrollY", scrollY);
       horizontalContainerRef.current.scrollTop = scrollY;
     }
-  }, [scrollY]);
+  }, [scrollY,barProps?.offsetY]);
 
   useEffect(() => {
     if (verticalGanttContainerRef.current) {
@@ -53,6 +54,7 @@ export const TaskGantt: React.FC<TaskGanttProps> = ({
       className={styles.ganttVerticalContainer}
       ref={verticalGanttContainerRef}
       dir="ltr"
+      // key={barProps?.offsetY}
     >
       <div>
           <svg
@@ -73,10 +75,12 @@ export const TaskGantt: React.FC<TaskGanttProps> = ({
             ? { height: ganttHeight, width: gridProps.svgWidth }
             : { width: gridProps.svgWidth }
         }
+        key={barProps?.offsetY}
       >
         <div style={{
           height: gridProps?.ganttFullHeight,
         }}>
+          {/*<div>loading</div>*/}
           <div
             style={{
               marginTop: barProps?.offsetY || 0,

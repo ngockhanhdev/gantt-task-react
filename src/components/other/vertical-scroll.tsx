@@ -18,6 +18,14 @@ export const VerticalScroll: React.FC<{
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const isFocusWrapper = useRef(false);
+
+  const onMouseenter = () => {
+    isFocusWrapper.current = true;
+  };
+  const onMouseleave = () => {
+    isFocusWrapper.current = false;
+  };
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scroll;
@@ -26,15 +34,19 @@ export const VerticalScroll: React.FC<{
 
   useEffect(() => {
     let handleScroll = (event:any) => {
-      if (onScroll) {
+      if (onScroll && isFocusWrapper.current) {
         onScroll(event)
       }
     }
     scrollRef.current?.addEventListener("scroll", handleScroll, {
       passive: false,
     });
+    scrollRef.current?.addEventListener("mouseenter", onMouseenter);
+    scrollRef.current?.addEventListener("mouseleave", onMouseleave);
     return () => {
       scrollRef.current?.removeEventListener("scroll", handleScroll);
+      scrollRef.current?.removeEventListener("mouseenter", onMouseenter);
+      scrollRef.current?.removeEventListener("mouseleave", onMouseleave);
     };
   }, [onScroll]);
 
