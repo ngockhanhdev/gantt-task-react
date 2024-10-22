@@ -9,6 +9,7 @@ export const Project: React.FC<TaskItemProps> = ({ task, isSelected }) => {
   const processColor = isSelected
     ? task.styles.progressSelectedColor
     : task.styles.progressColor;
+  console.log('barColor',barColor);
   const projectWith = task.x2 - task.x1;
 
   const projectLeftTriangle = [

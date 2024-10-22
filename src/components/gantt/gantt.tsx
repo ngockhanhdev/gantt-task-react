@@ -85,6 +85,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
                                                          eventGridGantt,
                                                        }, ref) => {
 
+  console.log('projectBackgroundColor',projectBackgroundColor);
   const getDateSetup = () => {
     const [startDate, endDate] = ganttDateRange(tasks, viewMode, preStepsCount);
     return { viewMode, dates: seedDates(startDate, endDate, viewMode) };
@@ -409,7 +410,6 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
     if (ignoreScrollEvent.current) {
       return;
     }
-    console.log("handleWheel");
     ignoreScrollEvent.current = true;
     if (event.ctrlKey || event.metaKey) {
       // event.preventDefault();
@@ -423,13 +423,13 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       return;
     }
     if (event.shiftKey || event.deltaX) {
-      // event.preventDefault();
+      event.preventDefault();
       const scrollMove = event.deltaX ? event.deltaX : event.deltaY;
       let newScrollX = state.scrollX + scrollMove;
       if (newScrollX < 0) {
         newScrollX = 0;
-      } else if (newScrollX > svgWidth) {
-        newScrollX = svgWidth;
+      } else if (newScrollX + event.layerX >= svgWidth) {
+        newScrollX = svgWidth - event.layerX;
       }
       newScrollX = Number(newScrollX.toFixed(0));
       if (newScrollX !== state.scrollX) {
@@ -441,7 +441,6 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
         // event.preventDefault();
       }
     } else if (ganttHeight) {
-      console.log('typeSetDataScroll.current',typeSetDataScroll.current);
       if (
         typeSetDataScroll.current === "onChangeDefaultScrollY"
       ) {

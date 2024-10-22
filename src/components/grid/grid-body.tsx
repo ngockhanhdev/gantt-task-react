@@ -131,7 +131,6 @@ export const GridBody: React.FC<GridBodyProps> = ({
     }
     tickX += columnWidth;
   }
-  console.log("dates.length",dates.length);
   return (
     <g className="gridBody">
       <g className="rows">{gridRows}</g>

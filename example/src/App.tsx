@@ -218,6 +218,17 @@ const App = () => {
           maxHeight: "calc(100vh - 140px)",
         }}
       >
+        {/*<div style={{*/}
+        {/*  display: "flex",*/}
+        {/*}}>*/}
+        {/*  <div style={{*/}
+        {/*    height: 550,*/}
+        {/*    minWidth: 400,*/}
+        {/*    border: "1px solid red",*/}
+        {/*  }}>*/}
+        {/*    kkkk*/}
+        {/*  </div>*/}
+
         {
           tasks?.length > 0 &&
           <Gantt
@@ -248,6 +259,8 @@ const App = () => {
             // ItemGanttContent={ItemGanttContent}
           />
         }
+        {/*</div>*/}
+
         <div style={{
           height: 1000,
           width: '100%',

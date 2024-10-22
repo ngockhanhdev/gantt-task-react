@@ -230,11 +230,11 @@ const convertToBar = (
     console.log("scheduleChildren", scheduleChildren);
   }
   const styles = {
+    ...task.styles,
     backgroundColor: barBackgroundColor,
     backgroundSelectedColor: barBackgroundSelectedColor,
     progressColor: barProgressColor,
     progressSelectedColor: barProgressSelectedColor,
-    ...task.styles,
   };
   return {
     ...task,
@@ -275,11 +275,11 @@ const convertToMilestone = (
 
   const rotatedHeight = taskHeight / 1.414;
   const styles = {
+    ...task.styles,
     backgroundColor: milestoneBackgroundColor,
     backgroundSelectedColor: milestoneBackgroundSelectedColor,
     progressColor: "",
     progressSelectedColor: "",
-    ...task.styles,
   };
   return {
     ...task,

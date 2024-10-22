@@ -59,6 +59,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
       console.log('event',event.clientX);
       console.log('event',event.clientY);
       console.log('innerWidth',event.view.innerWidth);
+      console.log('event.nativeEvent.layerX',event.nativeEvent.layerX);
       const tooltipHeight = tooltipRef.current.offsetHeight * 1.1;
       const tooltipWidth = tooltipRef.current.offsetWidth * 1.1;
 
@@ -93,11 +94,16 @@ export const Tooltip: React.FC<TooltipProps> = ({
       //   }
       // }
 
-      const tooltipLowerPoint = tooltipHeight + newRelatedY - scrollY;
-      if (tooltipLowerPoint > svgContainerHeight - scrollY) {
-        newRelatedY = svgContainerHeight - tooltipHeight;
-      }
-      console.log("newRelatedY",newRelatedY);
+      // const tooltipLowerPoint = tooltipHeight + newRelatedY - scrollY;
+
+      // const tooltipLowerPoint = tooltipHeight + newRelatedY;
+      // console.log('tooltipLowerPoint',tooltipLowerPoint);
+      // console.log('svgContainerHeight',svgContainerHeight);
+      // console.log('scrollY ',scrollY);
+      // console.log('tooltipHeight ',tooltipHeight);
+      // if (tooltipLowerPoint > svgContainerHeight - scrollY) {
+      //   newRelatedY = svgContainerHeight - tooltipHeight;
+      // }
       if (offsetY > 0) {
         if (task.index > 2 || event.view.innerHeight - event.clientY > rowHeight) {
           newRelatedY = newRelatedY + offsetY - (rowHeight/2)
@@ -107,10 +113,19 @@ export const Tooltip: React.FC<TooltipProps> = ({
       }
       // let
       if (event.view.innerWidth - event.clientX <= tooltipWidth) {
-        newRelatedX = event.view.innerWidth - tooltipWidth;
+        newRelatedX = event.nativeEvent.layerX - tooltipWidth;
       } else {
-        newRelatedX = event.clientX
+        newRelatedX = event.nativeEvent.layerX
       }
+      if (tooltipHeight >= rowHeight*2) {
+        if (newRelatedY > 0) {
+          newRelatedY = newRelatedY - Math.abs(tooltipHeight- (rowHeight*2));
+        } else {
+          newRelatedY = newRelatedY + Math.abs(tooltipHeight- (rowHeight*2));
+        }
+      }
+      console.log('newRelatedX',newRelatedX);
+      console.log("newRelatedY",newRelatedY);
       setState({
         relatedX: newRelatedX,
         relatedY: newRelatedY,
@@ -162,9 +177,12 @@ export const StandardTooltipContent: React.FC<{
       }`}</b>
       <p>{`${task.start.getDate()}-${
         task.start.getMonth() + 1
-      }-${task.start.getFullYear()} - ${task.end.getDate()}-${
+      }-${task.start.getFullYear()}`}</p>
+      <p>{`
+      ${task.end.getDate()}-${
         task.end.getMonth() + 1
-      }-${task.end.getFullYear()}`}</p>
+      }-${task.end.getFullYear()}
+      `}</p>
       {task.end.getTime() - task.start.getTime() !== 0 && (
         <p className={styles.tooltipDefaultContainerParagraph}>{`Duration: ${~~(
           (task.end.getTime() - task.start.getTime()) /
