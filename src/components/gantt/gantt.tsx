@@ -18,7 +18,7 @@ import { TaskListProps, TaskList } from "../task-list/task-list";
 import { TaskGantt } from "./task-gantt";
 import { BarTask } from "../../types/bar-task";
 import { convertToBarTasks } from "../../helpers/bar-helper";
-import { GanttEvent } from "../../types/gantt-task-actions";
+import { GanttContentMoveAction, GanttEvent } from "../../types/gantt-task-actions";
 import { DateSetup } from "../../types/date-setup";
 import { HorizontalScroll } from "../other/horizontal-scroll";
 import { removeHiddenTasks, sortTasks } from "../../helpers/other-helper";
@@ -82,6 +82,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
                                                          onZoomTask,
                                                          widthTable = 0,
                                                          eventTaskGantt,
+                                                         eventGridGantt,
                                                        }, ref) => {
 
   const getDateSetup = () => {
@@ -96,6 +97,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       svgContainerHeight: number,
       barTasks: BarTask[],
       ganttEvent: GanttEvent,
+      ganttEventRow: GanttEvent,
       selectedTask: BarTask | undefined,
       scrollY: number,
       scrollX: number,
@@ -112,6 +114,9 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
     svgContainerHeight: ganttHeight,
     barTasks: [],
     ganttEvent: {
+      action: "",
+    },
+    ganttEventRow: {
       action: "",
     },
     selectedTask: undefined,
@@ -225,13 +230,22 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   ]);
 
   useEffect(() => {
-    let { newItems, newOffsetY } = getDataScroll(state.barTasks, 0);
-    console.log("useEffect", newItems, newOffsetY);
-    setState({
-      visibleItems: newItems,
-      offsetY: newOffsetY,
-    });
-  }, [state.barTasks, ganttFullHeight]);
+    if (ganttHeight && scrollLoadData) {
+      console.log('11111');
+      handleScroll(0)
+    } else {
+      let { newItems, newOffsetY } = getDataScroll(state.barTasks, 0);
+      setState({
+        visibleItems: newItems,
+        offsetY: newOffsetY,
+      });
+    }
+  }, [
+    state.barTasks,
+    ganttFullHeight,
+    ganttHeight,
+    scrollLoadData
+  ]);
 
   const onChangeDefaultScrollY = (value: number) => {
     console.log('typeSetDataScroll.current',typeSetDataScroll.current);
@@ -342,6 +356,8 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       listTask.length - 1,
       Math.floor((scrollYPosition + ganttHeightCheck) / rowHeight),
     );
+    console.log("newStartIndex",newStartIndex);
+    console.log("newEndIndex",newEndIndex);
     let newItems = listTask.slice(newStartIndex, newEndIndex + 5);
     let newOffsetY = newStartIndex * rowHeight || 0;
     return {
@@ -351,11 +367,11 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   };
 
 
-  const handleScroll = (scrollYPosition: number, isReload?: boolean) => {
+  const handleScroll = (scrollYPosition: number) => {
     if (!scrollLoadData) {
       return;
     }
-    console.log("scrollLoadData", scrollYPosition, isReload);
+    console.log("scrollLoadData", scrollYPosition);
     let listTask: Task[] = handleRemoveHiddenTask(tasks);
     let { newItems, newOffsetY } = getDataScroll(listTask, scrollYPosition || 0);
     console.log("getDataScroll", newItems, newOffsetY);
@@ -530,7 +546,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   useEffect(() => {
     if (viewMode !== state.dateSetup.viewMode) {
       console.log("viewMode");
-      handleScroll(state.scrollY, true);
+      handleScroll(state.scrollY);
     }
   }, [viewMode]);
   //
@@ -760,44 +776,52 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       }
     }
   };
+  const setGanttEventRow = (eventGantt: any) => {
+    const { action, changedTask , originalSelectedTask} = eventGantt;
+    setState({
+      ganttEventRow: eventGantt,
+    });
+    if (changedTask) {
+      if (eventGridGantt) {
+        eventGridGantt(action, changedTask,originalSelectedTask);
+      }
+    }
+  };
 
-  // const setGanttEventGrid = async (
-  //   action: GanttContentMoveAction,
-  //   task: Task,
-  //   event?: React.MouseEvent | React.KeyboardEvent,
-  // ) => {
-  //   if (!event) {
-  //     if (action === "select") {
-  //       // setSelectedTask(task.id);
-  //     }
-  //   }
-  //   // Keyboard events
-  //   // else if (isKeyboardEvent(event)) {
-  //   //   if (action === "delete") {
-  //   //     if (onDelete) {
-  //   //       try {
-  //   //         const result = await onDelete(task);
-  //   //         if (result !== undefined && result) {
-  //   //           setGanttEvent({ action, changedTask: task });
-  //   //         }
-  //   //       } catch (error) {
-  //   //         console.error("Error on Delete. " + error);
-  //   //       }
-  //   //     }
-  //   //   }
-  //   // }
-  //   // Mouse Events
-  //   else if (action === "mouseenter") {
-  //     // console.log(action,task);
-  //     // if (!ganttEvent.action) {
-  //     //   setGanttEvent({
-  //     //     action,
-  //     //     changedTask: task,
-  //     //     originalSelectedTask: task,
-  //     //   });
-  //     // }
-  //   }
-  // };
+  const setGanttEventGrid = async (
+    action: GanttContentMoveAction,
+    task: Task,
+    event?: React.MouseEvent | React.KeyboardEvent,
+  ) => {
+    if (!event) {
+      if (action === "select") {
+        // setSelectedTask(task.id);
+      }
+    }
+    else {
+      // Mouse Events
+      setGanttEventRow({
+        action,
+        changedTask: task,
+        originalSelectedTask: task,
+      });
+    }
+    // Keyboard events
+    // else if (isKeyboardEvent(event)) {
+    //   if (action === "delete") {
+    //     if (onDelete) {
+    //       try {
+    //         const result = await onDelete(task);
+    //         if (result !== undefined && result) {
+    //           setGanttEvent({ action, changedTask: task });
+    //         }
+    //       } catch (error) {
+    //         console.error("Error on Delete. " + error);
+    //       }
+    //     }
+    //   }
+    // }
+  };
 
   const setFailedTask = (value: any) => {
     if (value) {
@@ -811,15 +835,15 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   const gridProps: GridProps = {
     columnWidth,
     svgWidth,
-    tasks: tasks,
-    // tasks: state.visibleItems || [],
+    // tasks: tasks,
+    tasks: state.visibleItems || [],
     rowHeight,
     ganttFullHeight,
     dates: state.dateSetup.dates,
     todayColor,
     rtl,
     offsetY: state.offsetY,
-    // onEventGridStart : setGanttEventGrid
+    onEventGridStart : setGanttEventGrid
   };
   const calendarProps: CalendarProps = {
     dateSetup: state.dateSetup,
@@ -936,6 +960,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
               fontSize={fontSize}
               scrollX={state.scrollX}
               scrollY={state.scrollY}
+              ganttEvent={state.ganttEvent}
               task={state.ganttEvent.changedTask}
               headerHeight={headerHeight}
               taskListWidth={listCellWidth ? state.taskListWidth : widthTable}

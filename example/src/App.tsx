@@ -16,7 +16,7 @@ const listMode: ViewMode[] = [ViewMode.Hour, ViewMode.QuarterDay, ViewMode.HalfD
   ViewMode.Week, ViewMode.Month, ViewMode.QuarterYear, ViewMode.Year];
 const App = () => {
   const [state, setState] = useSetState<any>({
-    view: ViewMode.Month,
+    view: ViewMode.Day,
     modeGantt: "normal2",
   });
 
@@ -27,7 +27,7 @@ const App = () => {
   const [isChecked, setIsChecked] = useState(false);
   // const [ganttHeight, setGanttHeight] = useState(200);
   const [scrollX, setScrollX] = useState(0);
-  const [scrollY, setScrollY] = useState(149);
+  const [scrollY, setScrollY] = useState(0);
 
 
   let columnWidth = 65;
@@ -188,7 +188,7 @@ const App = () => {
       {/*<AppTest2></AppTest2>*/}
 
 
-      <h3>Gantt With Limited Height</h3>
+      <p>Gantt With Limited Height</p>
       <div>
         scrollX :
         <input type="text" value={scrollX} onChange={(event: any) => setScrollX(event.target.value)} />
@@ -227,7 +227,7 @@ const App = () => {
             onScrollTask={onScrollTask}
             tasks={tasks}
             viewMode={state.view}
-            viewDate={new Date()}
+            // viewDate={new Date()}
             onDateChange={handleTaskChange}
             onDelete={handleTaskDelete}
             onProgressChange={handleProgressChange}

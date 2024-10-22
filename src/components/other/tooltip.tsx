@@ -3,6 +3,7 @@ import { Task } from "../../types/public-types";
 import { BarTask } from "../../types/bar-task";
 import styles from "./tooltip.module.css";
 import useSetState from "../../helpers/useSetState";
+import { GanttEvent } from "../../types/gantt-task-actions";
 
 export type TooltipProps = {
   task: BarTask;
@@ -24,6 +25,7 @@ export type TooltipProps = {
     fontFamily: string;
   }>;
   offsetY: number;
+  ganttEvent: GanttEvent;
 };
 export const Tooltip: React.FC<TooltipProps> = ({
                                                   task,
@@ -40,6 +42,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
                                                   taskListWidth,
                                                   TooltipContent,
                                                   offsetY = 0,
+                                                  ganttEvent
                                                 }) => {
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const [state, setState] = useSetState<{
@@ -51,47 +54,62 @@ export const Tooltip: React.FC<TooltipProps> = ({
   });
   useEffect(() => {
     if (tooltipRef.current) {
+      console.log("ganttEvent",ganttEvent);
+      const {event} = ganttEvent
+      console.log('event',event.clientX);
+      console.log('event',event.clientY);
+      console.log('innerWidth',event.view.innerWidth);
       const tooltipHeight = tooltipRef.current.offsetHeight * 1.1;
       const tooltipWidth = tooltipRef.current.offsetWidth * 1.1;
 
-      let newRelatedY = task.index * rowHeight - scrollY + headerHeight;
+      let newRelatedY = task.index * rowHeight - scrollY;
       let newRelatedX: number;
-      if (rtl) {
-        newRelatedX = task.x1 - arrowIndent * 1.5 - tooltipWidth - scrollX;
-        if (newRelatedX < 0) {
-          newRelatedX = task.x2 + arrowIndent * 1.5 - scrollX;
-        }
-        const tooltipLeftmostPoint = tooltipWidth + newRelatedX;
-        if (tooltipLeftmostPoint > svgContainerWidth) {
-          newRelatedX = svgContainerWidth - tooltipWidth;
-          newRelatedY += rowHeight;
-        }
-      } else {
-        newRelatedX = task.x2 + arrowIndent * 1.5 + taskListWidth - scrollX;
-        const tooltipLeftmostPoint = tooltipWidth + newRelatedX;
-        const fullChartWidth = taskListWidth + svgContainerWidth;
-        if (tooltipLeftmostPoint > fullChartWidth) {
-          newRelatedX =
-            task.x1 +
-            taskListWidth -
-            arrowIndent * 1.5 -
-            scrollX -
-            tooltipWidth;
-        }
-        if (newRelatedX < taskListWidth) {
-          newRelatedX = svgContainerWidth + taskListWidth - tooltipWidth;
-          newRelatedY += rowHeight;
-        }
-      }
+      // TODO
+      // if (rtl) {
+      //   newRelatedX = task.x1 - arrowIndent * 1.5 - tooltipWidth - scrollX;
+      //   if (newRelatedX < 0) {
+      //     newRelatedX = task.x2 + arrowIndent * 1.5 - scrollX;
+      //   }
+      //   const tooltipLeftmostPoint = tooltipWidth + newRelatedX;
+      //   if (tooltipLeftmostPoint > svgContainerWidth) {
+      //     newRelatedX = svgContainerWidth - tooltipWidth;
+      //     newRelatedY += rowHeight;
+      //   }
+      // } else {
+      //   newRelatedX = task.x2 + arrowIndent * 1.5 + taskListWidth - scrollX;
+      //   const tooltipLeftmostPoint = tooltipWidth + newRelatedX;
+      //   const fullChartWidth = taskListWidth + svgContainerWidth;
+      //   if (tooltipLeftmostPoint > fullChartWidth) {
+      //     newRelatedX =
+      //       task.x1 +
+      //       taskListWidth -
+      //       arrowIndent * 1.5 -
+      //       scrollX -
+      //       tooltipWidth;
+      //   }
+      //   if (newRelatedX < taskListWidth) {
+      //     newRelatedX = svgContainerWidth + taskListWidth - tooltipWidth;
+      //     newRelatedY += rowHeight;
+      //   }
+      // }
 
       const tooltipLowerPoint = tooltipHeight + newRelatedY - scrollY;
       if (tooltipLowerPoint > svgContainerHeight - scrollY) {
         newRelatedY = svgContainerHeight - tooltipHeight;
       }
-      // console.log("scrollX",scrollX);
-      // console.log("newRelatedX",newRelatedX);
+      console.log("newRelatedY",newRelatedY);
       if (offsetY > 0) {
-        newRelatedY += offsetY;
+        if (task.index > 2 || event.view.innerHeight - event.clientY > rowHeight) {
+          newRelatedY = newRelatedY + offsetY - (rowHeight/2)
+        } else {
+          newRelatedY = newRelatedY + offsetY;
+        }
+      }
+      // let
+      if (event.view.innerWidth - event.clientX <= tooltipWidth) {
+        newRelatedX = event.view.innerWidth - tooltipWidth;
+      } else {
+        newRelatedX = event.clientX
       }
       setState({
         relatedX: newRelatedX,
@@ -110,6 +128,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     svgContainerHeight,
     svgContainerWidth,
     rtl,
+    ganttEvent
   ]);
 
   return (
@@ -138,13 +157,14 @@ export const StandardTooltipContent: React.FC<{
   };
   return (
     <div className={styles.tooltipDefaultContainer} style={style}>
-      <b style={{ fontSize: fontSize + 6 }}>{`${
+      <b style={{ fontSize: fontSize + 6 , wordBreak: 'break-word'}}>{`${
         task.name
-      }: ${task.start.getDate()}-${
+      }`}</b>
+      <p>{`${task.start.getDate()}-${
         task.start.getMonth() + 1
       }-${task.start.getFullYear()} - ${task.end.getDate()}-${
         task.end.getMonth() + 1
-      }-${task.end.getFullYear()}`}</b>
+      }-${task.end.getFullYear()}`}</p>
       {task.end.getTime() - task.start.getTime() !== 0 && (
         <p className={styles.tooltipDefaultContainerParagraph}>{`Duration: ${~~(
           (task.end.getTime() - task.start.getTime()) /

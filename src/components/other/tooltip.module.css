@@ -1,10 +1,14 @@
 .tooltipDefaultContainer {
   background: #fff;
-  padding: 12px;
+  padding: 6px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   word-break: break-word;
+  max-width: 200px;
 }
-
+.tooltipDefaultContainer p {
+  margin: 4px 0;
+  /*padding: 0;*/
+}
 .tooltipDefaultContainerParagraph {
   font-size: 12px;
   margin-bottom: 6px;
@@ -13,7 +17,7 @@
 
 .tooltipDetailsContainer {
   position: absolute;
-  z-index: 99;
+  z-index: 10000;
   display: flex;
   flex-shrink: 0;
   pointer-events: none;

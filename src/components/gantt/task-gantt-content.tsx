@@ -142,7 +142,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
         rtl,
       );
       if (isChanged) {
-        setGanttEvent({ action: ganttEvent.action, changedTask });
+        setGanttEvent({ action: ganttEvent.action, changedTask, event });
       }
     };
 
@@ -179,7 +179,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
       // remove listeners
       svg.current.removeEventListener("mousemove", handleMouseMove);
       svg.current.removeEventListener("mouseup", handleMouseUp);
-      setGanttEvent({ action: "" });
+      setGanttEvent({ action: "",event });
       setIsMoving(false);
 
       // custom operation start
@@ -267,7 +267,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
           try {
             const result = await onDelete(task);
             if (result !== undefined && result) {
-              setGanttEvent({ action, changedTask: task });
+              setGanttEvent({ action, changedTask: task ,event});
             }
           } catch (error) {
             console.error("Error on Delete. " + error);
@@ -282,11 +282,12 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
           action,
           changedTask: task,
           originalSelectedTask: task,
+          event
         });
       }
     } else if (action === "mouseleave") {
       if (ganttEvent.action === "mouseenter") {
-        setGanttEvent({ action: "" });
+        setGanttEvent({ action: "",event });
       }
     } else if (action === "dblclick") {
       !!onDoubleClick && onDoubleClick(task);
@@ -305,12 +306,14 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
         action,
         changedTask: task,
         originalSelectedTask: task,
+        event
       });
     } else {
       setGanttEvent({
         action,
         changedTask: task,
         originalSelectedTask: task,
+        event
       });
     }
   };

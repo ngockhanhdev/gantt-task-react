@@ -158,6 +158,7 @@ export interface StylingOption {
   TaskTable?: React.FC<any>;
   widthTable?: number
   eventTaskGantt?: (event:any,changeTask: Task, originalSelectedTask: Task) => void;
+  eventGridGantt?: (event:any,changeTask: Task, originalSelectedTask: Task) => void;
 }
 
 export interface GanttProps extends EventOption, DisplayOption, StylingOption {

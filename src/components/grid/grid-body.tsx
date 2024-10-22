@@ -14,7 +14,7 @@ export type GridBodyProps = {
   todayColor: string;
   rtl: boolean;
   offsetY?: number;
-  onEventGridStart?: (
+  onEventGridStart: (
     action: GanttContentMoveAction,
     selectedTask: Task,
     event?: React.MouseEvent | React.KeyboardEvent
@@ -28,7 +28,7 @@ export const GridBody: React.FC<GridBodyProps> = ({
                                                     columnWidth,
                                                     todayColor,
                                                     rtl,
-                                                    // onEventGridStart,
+                                                    onEventGridStart,
                                                   }) => {
   let y = 0;
   const gridRows: ReactChild[] = [];
@@ -51,9 +51,12 @@ export const GridBody: React.FC<GridBodyProps> = ({
         width={svgWidth}
         height={rowHeight}
         className={styles.gridRow}
-        // onMouseEnter={e => {
-        //   onEventGridStart("mouseenter", task, e);
-        // }}
+        onMouseEnter={e => {
+          onEventGridStart("mouseenter", task, e);
+        }}
+        onMouseLeave={e => {
+          onEventGridStart("", task, e);
+        }}
       />,
     );
     rowLines.push(
@@ -128,6 +131,7 @@ export const GridBody: React.FC<GridBodyProps> = ({
     }
     tickX += columnWidth;
   }
+  console.log("dates.length",dates.length);
   return (
     <g className="gridBody">
       <g className="rows">{gridRows}</g>
