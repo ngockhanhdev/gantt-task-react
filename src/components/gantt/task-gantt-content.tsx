@@ -59,8 +59,10 @@ const ItemRenderTask = React.memo(
     //     console.log("getData",e)
     // }
     // console.log("TaskItem");
+    if (!task?.isNullDate) {
+      return null;
+    }
     return (
-      !task?.isNullDate ?
       <TaskItem
         task={task}
         arrowIndent={arrowIndent}
@@ -72,7 +74,7 @@ const ItemRenderTask = React.memo(
         isSelected={isSelected}
         rtl={rtl}
         ItemGanttContent={ItemGanttContent}
-      /> : <></>
+      />
     );
   },
   // (prevProps, nextProps) => !isEqual(prevProps.item?.dataConfig?.config, nextProps.item?.dataConfig?.config)
