@@ -16,6 +16,7 @@ export interface Task {
   name: string;
   start: Date;
   end: Date;
+  isNullDate?: boolean
   /**
    * From 0 to 100
    */

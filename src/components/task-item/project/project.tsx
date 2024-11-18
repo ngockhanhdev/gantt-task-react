@@ -34,7 +34,7 @@ export const Project: React.FC<TaskItemProps> = ({ task, isSelected }) => {
       <rect
         fill={barColor}
         x={task.x1}
-        width={projectWith}
+        width={projectWith || 2}
         y={task.y}
         height={task.height}
         rx={task.barCornerRadius}
