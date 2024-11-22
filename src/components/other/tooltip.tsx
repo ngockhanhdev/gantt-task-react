@@ -54,12 +54,12 @@ export const Tooltip: React.FC<TooltipProps> = ({
   });
   useEffect(() => {
     if (tooltipRef.current) {
-      console.log("ganttEvent",ganttEvent);
+      // console.log("ganttEvent",ganttEvent);
       const {event} = ganttEvent
-      console.log('event',event.clientX);
-      console.log('event',event.clientY);
-      console.log('innerWidth',event.view.innerWidth);
-      console.log('event.nativeEvent.layerX',event.nativeEvent.layerX);
+      // console.log('event',event);
+      // console.log('event',event.clientY);
+      // console.log('innerWidth',event.view.innerWidth);
+      // console.log('event.nativeEvent.layerX',event.nativeEvent.layerX);
       const tooltipHeight = tooltipRef.current.offsetHeight * 1.1;
       const tooltipWidth = tooltipRef.current.offsetWidth * 1.1;
 
@@ -113,9 +113,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
       }
       // let
       if (event.view.innerWidth - event.clientX <= tooltipWidth) {
-        newRelatedX = event.nativeEvent.layerX - tooltipWidth;
+        newRelatedX = (event?.nativeEvent?.layerX || event?.layerX) - tooltipWidth;
       } else {
-        newRelatedX = event.nativeEvent.layerX
+        newRelatedX = (event?.nativeEvent?.layerX || event?.layerX)
       }
       if (tooltipHeight >= rowHeight*2) {
         if (newRelatedY > 0) {
@@ -124,8 +124,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
           newRelatedY = newRelatedY + Math.abs(tooltipHeight- (rowHeight*2));
         }
       }
-      console.log('newRelatedX',newRelatedX);
-      console.log("newRelatedY",newRelatedY);
+      // console.log('newRelatedX',newRelatedX);
+      // console.log("newRelatedY",newRelatedY);
       setState({
         relatedX: newRelatedX,
         relatedY: newRelatedY,

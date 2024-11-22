@@ -59,7 +59,7 @@ const ItemRenderTask = React.memo(
     //     console.log("getData",e)
     // }
     // console.log("TaskItem");
-    if (!task?.isNullDate) {
+    if (!!task?.isNullDate) {
       return null;
     }
     return (

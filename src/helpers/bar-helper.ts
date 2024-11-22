@@ -62,7 +62,7 @@ export const convertToBarTasks = (
 
     return task;
   });
-  console.log("barTasks", barTasks);
+  // console.log("barTasks", barTasks);
   return barTasks;
 };
 
@@ -225,9 +225,9 @@ const convertToBar = (
         ));
       }
     });
-    console.log("tasksDefault", tasksDefault);
-    console.log("task", task);
-    console.log("scheduleChildren", scheduleChildren);
+    // console.log("tasksDefault", tasksDefault);
+    // console.log("task", task);
+    // console.log("scheduleChildren", scheduleChildren);
   }
   const styles = {
     ...task.styles,
@@ -571,7 +571,7 @@ const handleTaskBySVGMouseEventForBar = (
       break;
     }
     case "move": {
-      console.log("move ======");
+      // console.log("move ======");
       const [newMoveX1, newMoveX2] = moveByX(
         svgX - initEventX1Delta,
         xStep,
@@ -579,7 +579,7 @@ const handleTaskBySVGMouseEventForBar = (
       );
       isChanged = newMoveX1 !== selectedTask.x1;
       if (isChanged) {
-        console.log("isChanged", changedTask);
+        // console.log("isChanged", changedTask);
         changedTask.start = dateByX(
           newMoveX1,
           selectedTask.x1,

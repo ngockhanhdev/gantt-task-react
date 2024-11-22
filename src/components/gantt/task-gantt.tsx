@@ -35,9 +35,9 @@ export const TaskGantt: React.FC<TaskGanttProps> = ({
   const newBarProps = { ...barProps, svg: ganttSVGRef };
 
   useEffect(() => {
-    console.log("TaskGantt scrollY",scrollY);
+    // console.log("TaskGantt scrollY",scrollY);
     if (horizontalContainerRef.current) {
-      console.log("scrollY", scrollY);
+      // console.log("scrollY", scrollY);
       horizontalContainerRef.current.scrollTop = scrollY;
     }
   }, [scrollY,barProps?.offsetY]);

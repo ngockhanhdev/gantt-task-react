@@ -20,11 +20,11 @@ const VirtualizedList = ({ items, itemHeight, renderItem }:any) => {
         Math.floor((scrollTop + clientHeight) / itemHeight)
       );
 
-      console.log("scrollTop",scrollTop);
-      console.log("clientHeight",clientHeight);
-      console.log("itemHeight",itemHeight);
-      console.log("newStartIndex",newStartIndex);
-      console.log("newEndIndex",newEndIndex);
+      // console.log("scrollTop",scrollTop);
+      // console.log("clientHeight",clientHeight);
+      // console.log("itemHeight",itemHeight);
+      // console.log("newStartIndex",newStartIndex);
+      // console.log("newEndIndex",newEndIndex);
       setStartIndex(newStartIndex);
       setEndIndex(newEndIndex);
     };

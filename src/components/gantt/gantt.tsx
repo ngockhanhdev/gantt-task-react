@@ -367,13 +367,13 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
     if (!scrollLoadData) {
       return;
     }
-    console.log("scrollLoadData", scrollYPosition);
+    // console.log("scrollLoadData", scrollYPosition);
     let listTask: Task[] = handleRemoveHiddenTask(tasks);
     let { newItems, newOffsetY } = getDataScroll(listTask, scrollYPosition || 0);
-    console.log("getDataScroll", newItems, newOffsetY);
+    // console.log("getDataScroll", newItems, newOffsetY);
     // if (newOffsetY !== state.offsetY || isReload) {
     let { tasksData, dataSetup } = changeTaskData(newItems);
-    console.log("changeTaskData", tasksData, dataSetup);
+    // console.log("changeTaskData", tasksData, dataSetup);
     setState({
       visibleItems: tasksData,
       offsetY: newOffsetY,
@@ -427,7 +427,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       }
       newScrollX = Number(newScrollX.toFixed(0));
       if (newScrollX !== state.scrollX) {
-        console.log("newScrollX", newScrollX);
+        // console.log("newScrollX", newScrollX);
         setState({
           scrollX: newScrollX,
         });
@@ -451,7 +451,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       }
       newScrollY = Number(newScrollY.toFixed(0));
       if (newScrollY !== state.scrollY) {
-        console.log("newScrollY", newScrollY);
+        // console.log("newScrollY", newScrollY);
 
         setState({
           scrollY: newScrollY,
@@ -477,7 +477,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       }
       newScrollY = Number(newScrollY.toFixed(0));
       if (newScrollY !== state.scrollY) {
-        console.log("newScrollY", newScrollY);
+        // console.log("newScrollY", newScrollY);
         setState({
           scrollY: newScrollY,
         });
@@ -538,14 +538,14 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
 
   useEffect(() => {
     if (viewMode !== state.dateSetup.viewMode) {
-      console.log("viewMode");
+      // console.log("viewMode");
       handleScroll(state.scrollY);
     }
   }, [viewMode]);
   //
 
   const handleScrollY = _.debounce((event: any) => {
-    console.log("handleScrollY", ignoreScrollEvent.current);
+    // console.log("handleScrollY", ignoreScrollEvent.current);
     // debugger;
     if (ignoreScrollEvent.current) return;
     ignoreScrollEvent.current = true;
@@ -581,13 +581,13 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
 
   const handleScrollX = _.debounce((event: any) => {
     if (ignoreScrollEvent.current) return;
-    console.log("handleScrollX");
+    // console.log("handleScrollX");
     // event.stopPropagation()
     event.preventDefault();
     ignoreScrollEvent.current = true;
     if (state.scrollX !== event.target.scrollLeft) {
       const { scrollWidth, offsetWidth, scrollLeft } = event.target;
-      console.log(scrollWidth, offsetWidth, scrollLeft);
+      // console.log(scrollWidth, offsetWidth, scrollLeft);
       let newScrollX = scrollLeft;
       if (scrollWidth - offsetWidth <= scrollLeft) {
         newScrollX = scrollWidth - offsetWidth;
@@ -664,7 +664,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
         }
       }
     }
-    console.log("handleKeyDown");
+    // console.log("handleKeyDown");
     ignoreScrollEvent.current = false;
   };
 
@@ -696,7 +696,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
 
   const setGanttEvent = (eventGantt: any) => {
     const { action, changedTask , originalSelectedTask} = eventGantt;
-    console.log("eventGantt", eventGantt);
+    // console.log("eventGantt", eventGantt);
     setState({
       ganttEvent: eventGantt,
     });

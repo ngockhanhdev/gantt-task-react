@@ -41,7 +41,7 @@ const App = () => {
   }
 
   const handleTaskChange = (task: Task) => {
-    console.log("On date change Id:" + task.id, task);
+    // console.log("On date change Id:" + task.id, task);
     let newTasks = tasks.map(t => (t.id === task.id ? task : t));
     if (task.project) {
       const [start, end] = getStartEndDateForProject(newTasks, task.project);
@@ -69,7 +69,7 @@ const App = () => {
 
   const handleProgressChange = async (task: Task) => {
     setTasks(tasks.map(t => (t.id === task.id ? task : t)));
-    console.log("On progress change Id:" + task.id);
+    // console.log("On progress change Id:" + task.id);
   };
 
   const handleDblClick = (task: Task) => {
@@ -77,25 +77,25 @@ const App = () => {
   };
 
   const handleClick = (task: Task) => {
-    console.log("On Click event Id:" + task.id);
+    // console.log("On Click event Id:" + task.id);
   };
 
   const handleSelect = (task: Task, isSelected: boolean) => {
-    console.log(task.name + " has " + (isSelected ? "selected" : "unselected"));
+    // console.log(task.name + " has " + (isSelected ? "selected" : "unselected"));
   };
 
   const handleExpanderClick = (task: Task) => {
     let newTask = tasks.map(t => (t.id === task.id ? task : t));
     setTasks(newTask);
-    console.log("On expander click Id:" + task.id);
-    console.log("On expander tasks:", newTask);
+    // console.log("On expander click Id:" + task.id);
+    // console.log("On expander tasks:", newTask);
   };
 
 
   useEffect(() => {
     // setGanttHeight(300);
     let arr = initTasks2()
-    console.log('initTasks2',arr);
+    // console.log('initTasks2',arr);
     if (state.modeGantt === "normal") {
       setTasks(initTasks());
     }
@@ -127,7 +127,7 @@ const App = () => {
 
   const onScrollTask = ({ y }: any) => {
     if (y != scrollY) {
-      console.log("onScrollTask");
+      // console.log("onScrollTask");
       setScrollY(y);
     }
   };
@@ -139,18 +139,18 @@ const App = () => {
       setState({
         view: listMode[newZoom],
       });
-      console.log(type, newZoom);
+      // console.log(type, newZoom);
     }
 
     if (type === "zoomOut" && stateRef.current.zoomIndex < listMode.length - 1) {
-      console.log("listMode.length", listMode.length);
-      console.log("stateRef.current.zoomIndex", stateRef.current.zoomIndex);
+      // console.log("listMode.length", listMode.length);
+      // console.log("stateRef.current.zoomIndex", stateRef.current.zoomIndex);
       let newZoom: number = stateRef.current.zoomIndex + 1;
       stateRef.current.zoomIndex = newZoom;
       setState({
         view: listMode[newZoom],
       });
-      console.log(type, newZoom);
+      // console.log(type, newZoom);
     }
   };
 
