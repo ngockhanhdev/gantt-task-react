@@ -200,6 +200,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   };
 
   useEffect(() => {
+    console.log("vao 1");
     let listTask: Task[] = handleRemoveHiddenTask(tasks);
     let { dataSetup, tasksData } = changeTaskData(listTask);
     setState({
@@ -231,7 +232,8 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
 
   useEffect(() => {
     if (ganttHeight && scrollLoadData) {
-      handleScroll(0)
+      console.log('vao 2-1');
+      handleScroll(state.scrollY || 0)
     } else {
       let { newItems, newOffsetY } = getDataScroll(state.barTasks, 0);
       setState({
@@ -264,10 +266,6 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
     }
   };
 
-  // useEffect(() => {
-  //   onChangeDefaultScrollY(defaultScrollY);
-  //   typeSetDataScroll.current = "";
-  // }, [defaultScrollY, wrapperRef]);
   useEffect(() => {
     if (
       viewMode === state.dateSetup.viewMode &&
@@ -302,6 +300,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
 
 
   useEffect(() => {
+    console.log("vao 4");
     if (!listCellWidth) {
       setState({
         taskListWidth: 0,
@@ -317,6 +316,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   }, [taskListRef, listCellWidth]);
 
   useEffect(() => {
+    console.log("vao 5");
     if (wrapperRef.current) {
       setState({
         svgContainerWidth: wrapperRef.current.offsetWidth - state.taskListWidth,
@@ -325,6 +325,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   }, [wrapperRef, state.taskListWidth]);
 
   useEffect(() => {
+    console.log("vao 6");
     if (ganttHeight) {
       setState({
         svgContainerHeight: ganttHeight + headerHeight,
@@ -451,7 +452,6 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       }
       newScrollY = Number(newScrollY.toFixed(0));
       if (newScrollY !== state.scrollY) {
-        // console.log("newScrollY", newScrollY);
 
         setState({
           scrollY: newScrollY,
@@ -477,7 +477,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
       }
       newScrollY = Number(newScrollY.toFixed(0));
       if (newScrollY !== state.scrollY) {
-        // console.log("newScrollY", newScrollY);
+        console.log("newScrollY", newScrollY);
         setState({
           scrollY: newScrollY,
         });
@@ -537,6 +537,7 @@ export const Gantt: React.FC<GanttProps> = forwardRef(({
   ]);
 
   useEffect(() => {
+    console.log("vao 7");
     if (viewMode !== state.dateSetup.viewMode) {
       // console.log("viewMode");
       handleScroll(state.scrollY);

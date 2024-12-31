@@ -77,11 +77,11 @@ const App = () => {
   };
 
   const handleClick = (task: Task) => {
-    // console.log("On Click event Id:" + task.id);
+    console.log("On Click event Id:" + task.id);
   };
 
   const handleSelect = (task: Task, isSelected: boolean) => {
-    // console.log(task.name + " has " + (isSelected ? "selected" : "unselected"));
+    console.log(task.name + " has " + (isSelected ? "selected" : "unselected"));
   };
 
   const handleExpanderClick = (task: Task) => {

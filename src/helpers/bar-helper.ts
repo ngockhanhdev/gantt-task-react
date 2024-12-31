@@ -305,7 +305,11 @@ const taskXCoordinate = (xDate: Date, dates: Date[], columnWidth: number) => {
   if (!xDate.getTime()) {
     return 0
   }
+
   const index = dates.findIndex(d => d.getTime() >= xDate.getTime()) - 1;
+  if (index < 0) {
+    return 0
+  }
   const remainderMillis = xDate.getTime() - dates[index].getTime();
   const percentOfInterval =
     remainderMillis / (dates[index + 1].getTime() - dates[index].getTime());

@@ -8,7 +8,7 @@ export const Milestone: React.FC<TaskItemProps> = ({
   onEventStart,
   isSelected,
 }) => {
-  const transform = `rotate(45 ${task.x1 + task.height * 0.356} 
+  const transform = `rotate(45 ${task.x1 + task.height * 0.356}
     ${task.y + task.height * 0.85})`;
   const getBarColor = () => {
     return isSelected
